@@ -32,7 +32,7 @@ Run all models
 This function trains and tests Decision Tree, Random Forest and SVM models on 100 subsamples and provides a summary of the results, to select the best model. The number of trees and kernel chosen by select_svm_kernel and select_rf_numtrees should be used for SVM and Random Forest respectively. We can use this function to inform feature selection, using a Decision Tree voting scheme and a Random Forest measure based on the Gini index.
 }
 \examples{
-runallmodels(num_trees=50,kernel='radial',degree=3,poly=1,file_path='/subsamples/sample')
+"runallmodels(num_trees=50,kernel='radial',degree=3,poly=1,file_path='/subsamples/sample')"
 }
 \keyword{classification}
 \keyword{decision}

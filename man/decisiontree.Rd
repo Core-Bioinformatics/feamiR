@@ -24,7 +24,7 @@ Decision tree
 This function trains a decision on the given training dataset and uses it to predict classification for test dataset. The resulting accuracy, sensitivity and specificity are returned, as well as a tree summary.
 }
 \examples{
-decisiontree(data_train,data_test)
+"decisiontree(data_train,data_test)"
 }
 \keyword{classification}
 \keyword{decision}

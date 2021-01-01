@@ -30,7 +30,8 @@ Ordered list of most discriminative features when classifying the dataset along 
 This function performs forward feature selection on the given list of features, placing them in order of discriminative power using a given model on the given dataset up to the accuracy plateau.
 }
 \examples{
-forwardfeatureselection(linear_svm,data_train,data_test,subset(colnames(data_train),select=-c(classification)))
+"listoffeatures = subset(colnames(data_train),select=-c(classification))"
+"forwardfeatureselection(linear_svm,data_train,data_test,listoffeatures)"
 }
 \keyword{feature}
 \keyword{forward}

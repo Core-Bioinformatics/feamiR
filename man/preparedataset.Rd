@@ -39,7 +39,11 @@ preparedataset(
 
 \item{fullchromosomes}{Fasta file (e.g. top level file from Ensembl) containing full sequence for each chromosome with name as chromosome (e.g. 1, matching seqname from annotations)}
 
+\item{seed}{Binary, 1 if full miRNA seed features should be included in statistical analysis. Default: 1.}
+
 \item{nonseed_miRNA}{Binary, 1 if full miRNA features should be included in statistical analysis. Seed features are always included. Default: 0.}
+
+\item{flankingmRNA}{Binary, 1 if flanking region mRNA features should be included in statistical analysis. Seed features are always included. Default: 0.}
 
 \item{UTR_output}{String. File name 3'UTR fasta file should be saved as (when annotations and full chromosomes files are supplied)}
 
@@ -55,13 +59,11 @@ preparedataset(
 
 \item{patmanpath}{File path for installed patman (default: patman)}
 
+\item{patmanoutput}{TXT file containing patman output (saved as output_prefix + patman_seed.txt). If supplied, analysis begins at patman output processing stage.}
+
 \item{minvalidationentries}{Minimum number of entries for a validation category to be considered separately in statistical analysis (default: 40)}
 
 \item{num_runs}{Number of subsamples to create (default: 100)}
-
-\item{flanking_mRNA}{Binary, 1 if flanking region mRNA features should be included in statistical analysis. Seed features are always included. Default: 0.}
-
-\item{patmanout}{TXT file containing patman output (saved as output_prefix + patman_seed.txt). If supplied, analysis begins at patman output processing stage.}
 }
 \value{
 CSV containing full positive and negative sets. Folder statistical_analysis of heatmaps showing significance of various features under Fisher exact and Chi-squared tests. Seed analysis will always be run, full miRNA and flanking analysis if the respective parameters are set to 1. Folder subsamples containing CSVs for 100 subsamples with positive and negative samples equal for use in classifiers and feature selection.
@@ -78,6 +80,6 @@ The Python component required the following libraries: os, Bio, gtfparse, pandas
 The function saves various files (using specified output_prefix) and if you wish to start preparation using one of these pre-output files then these can be specified and preparation will skip to that point (this should only be done with files output by the function).
 }
 \examples{
-preparedataset(pythonversion='python3',miRNA_full='miRNA_full_mmu.fasta',annotations='Mus_musculus.GRCm38.100.chr.gtf',fullchromosomes='Mus_musculus.GRCm38.dna.toplevel.fa',interactions='mmu_MTI.csv',chr=20,o='feamiR_ignore')
-preparedataset(pythonversion='python3',interactions='mmu_MTI.csv',positiveset='feamiR_seed_positive.csv',negativeset='feamiR_seed_negative.csv',o='feamiR_')
+"preparedataset(pythonversion='python3',miRNA_full='miRNA_full_mmu.fasta',annotations='Mus_musculus.GRCm38.100.chr.gtf',fullchromosomes='Mus_musculus.GRCm38.dna.toplevel.fa',interactions='mmu_MTI.csv',chr=20,o='feamiR_ignore')"
+"preparedataset(pythonversion='python3',interactions='mmu_MTI.csv',positiveset='feamiR_seed_positive.csv',negativeset='feamiR_seed_negative.csv',o='feamiR_')"
 }

@@ -22,7 +22,7 @@ Random Forest cumulative MeanDecreaseGini feature selection
 This function implements a feature selection approach based on cumulative MeanDecreaseGini using Random Forests trained on multiple subsamples.
 }
 \examples{
-rfgini(num_runs=100,num_trees=30,file_path='/subsamples/sample')
+"rfgini(num_runs=100,num_trees=30,file_path='/subsamples/sample')"
 }
 \keyword{Gini}
 \keyword{feature}

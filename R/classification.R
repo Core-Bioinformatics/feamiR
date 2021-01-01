@@ -1,5 +1,5 @@
 specfunc<-function(results){
-  spectib <- as.data.frame(results %>% filter(y_real == 0) %>% count(Correct))
+  spectib <- as.data.frame(results %>% stats::filter(y_real == 0) %>% count(Correct))
   if (nrow(spectib)==1) {
     if (spectib[1,'Correct']=='yes'){
       specificity <- 1
@@ -13,7 +13,7 @@ specfunc<-function(results){
   specificity
 }
 sensfunc<-function(results){
-  senstib <- as.data.frame(results %>% filter(y_real == 1) %>% count(Correct))
+  senstib <- as.data.frame(results %>% stats::filter(y_real == 1) %>% count(Correct))
   if (nrow(senstib)==1) {
     if (senstib[1,'Correct']=='yes'){
       sensitivity <- 1
@@ -41,32 +41,32 @@ sensfunc<-function(results){
 #' @keywords classification
 #' @export
 #' @examples
-#' decisiontree(data_train,data_test)
+#' "decisiontree(data_train,data_test)"
 
 decisiontree<-function(data_train,data_test,includeplot=FALSE,showtree=F){
   fit <- rpart::rpart(classification~., data = data_train, method = 'class',minsplit=6)
-  if (showtree==T){plot(rpart.plot(fit))}
+  if (showtree==T){graphics::plot(rpart.plot::rpart.plot(fit))}
 
-  testdtree_y_pred <- predict(fit,data_test, type = 'class')
+  testdtree_y_pred <- stats::predict(fit,data_test, type = 'class')
   testdtree <- table(data_test[, 1], testdtree_y_pred)
   testdtree_accuracy_Test <- sum(diag(testdtree)) / sum(testdtree)
 
-  traindtree_y_pred = predict(fit,data_train, type = 'class')
+  traindtree_y_pred = stats::predict(fit,data_train, type = 'class')
   traindtree <- table(data_train[, 1], traindtree_y_pred)
   traindtree_accuracy_Test <- sum(diag(traindtree)) / sum(traindtree)
 
   if (nlevels(testdtree_y_pred %>% factor)==1){
     if (levels(testdtree_y_pred %>% factor)=='1'){
-      testsensitivity<-nrow(data_test %>% filter(classification==1))/nrow(data_test)
+      testsensitivity<-nrow(data_test %>% stats::filter(classification==1))/nrow(data_test)
       testspecificity<-0
     }
     if (levels(testdtree_y_pred %>% factor)=='0'){
       testsensitivity<-0
-      testspecificity<-nrow(data_test %>% filter(classification==0))/nrow(data_test)
+      testspecificity<-nrow(data_test %>% stats::filter(classification==0))/nrow(data_test)
     }
   }
   if (nlevels(testdtree_y_pred %>% factor)!=1){
-    results = tibble(y_real  = data_test$classification %>% factor,
+    results = tibble::tibble(y_real  = data_test$classification %>% factor,
                      y_pred  = testdtree_y_pred %>% factor,
                      Correct = ifelse(y_real == y_pred,"yes","no") %>% factor)
     testspecificity<-specfunc(results)
@@ -74,29 +74,29 @@ decisiontree<-function(data_train,data_test,includeplot=FALSE,showtree=F){
   }
   if (nlevels(traindtree_y_pred %>% factor)==1){
     if (levels(traindtree_y_pred %>% factor)=='1'){
-      trainsensitivity<-nrow(data_train %>% filter(classification==1))/nrow(data_train)
+      trainsensitivity<-nrow(data_train %>% stats::filter(classification==1))/nrow(data_train)
       trainspecificity<-0
     }
     if (levels(traindtree_y_pred %>% factor)=='0'){
       trainsensitivity<-0
-      trainspecificity<-nrow(data_train %>% filter(classification==0))/nrow(data_train)
+      trainspecificity<-nrow(data_train %>% stats::filter(classification==0))/nrow(data_train)
     }
   }
   if (nlevels(traindtree_y_pred %>% factor)!=1){
-    results = tibble(y_real  = data_train$classification %>% factor,
+    results = tibble::tibble(y_real  = data_train$classification %>% factor,
                      y_pred  = traindtree_y_pred %>% factor,
                      Correct = ifelse(y_real == y_pred,"yes","no") %>% factor)
     trainspecificity<-specfunc(results)
     trainsensitivity<-sensfunc(results)
     if (includeplot==TRUE){
-      results = tibble(y_real  = data_test$classification %>% factor,
+      results = tibble::tibble(y_real  = data_test$classification %>% factor,
                        y_pred  = testdtree_y_pred %>% factor,
                        Correct = ifelse(y_real == y_pred,"yes","no") %>% factor)
 
       title = 'Performance on 10% unseen data - decision tree'
       xlab  = 'Measured (Real class)'
       ylab  = 'Predicted (Class assigned by decisiontree)'
-      plot(ggplot(results,aes(x = testdtree_y_pred, y = data_test$classification, colour = Correct)) +
+      graphics::plot(ggplot2::ggplot(results,aes(x = testdtree_y_pred, y = data_test$classification, colour = Correct)) +
              geom_point() +
              ggtitle(label = title, subtitle = paste0("Accuracy = ", 100*round(testdtree_accuracy_Test,3),"%")) +
              xlab(xlab) +
@@ -123,32 +123,32 @@ decisiontree<-function(data_train,data_test,includeplot=FALSE,showtree=F){
 #' @keywords classification
 #' @export
 #' @examples
-#' randomforest(data_train,data_test,numoftrees=50)
+#' "randomforest(data_train,data_test,numoftrees=50)"
 randomforest<-function(data_train,data_test,numoftrees=10,includeplot=FALSE){
 
   training.rf <- randomForest::randomForest(classification~.,data=data_train,ntree=numoftrees,proximity=TRUE,importance=TRUE,replace=TRUE)
 
 
-  testrf_y_pred <- predict(training.rf,newdata=data_test[-1])
+  testrf_y_pred <- stats::predict(training.rf,newdata=data_test[-1])
   testrf <- table(data_test[, 1], testrf_y_pred)
   testrf_accuracy_Test <- sum(diag(testrf)) / sum(testrf)
 
-  trainrf_y_pred = predict(training.rf,newdata=data_train[-1])
+  trainrf_y_pred = stats::predict(training.rf,newdata=data_train[-1])
   trainrf <- table(data_train[, 1], trainrf_y_pred)
   trainrf_accuracy_Test <- sum(diag(trainrf)) / sum(trainrf)
 
   if (nlevels(testrf_y_pred %>% factor)==1){
     if (levels(testrf_y_pred %>% factor)=='1'){
-      testsensitivity<-nrow(data_test %>% filter(classification==1))/nrow(data_test)
+      testsensitivity<-nrow(data_test %>% stats::filter(classification==1))/nrow(data_test)
       testspecificity<-0
     }
     if (levels(testrf_y_pred %>% factor)=='0'){
       testsensitivity<-0
-      testspecificity<-nrow(data_test %>% filter(classification==0))/nrow(data_test)
+      testspecificity<-nrow(data_test %>% stats::filter(classification==0))/nrow(data_test)
     }
   }
   if (nlevels(testrf_y_pred %>% factor)!=1){
-    results = tibble(y_real  = data_test$classification %>% factor,
+    results = tibble::tibble(y_real  = data_test$classification %>% factor,
                      y_pred  = testrf_y_pred %>% factor,
                      Correct = ifelse(y_real == y_pred,"yes","no") %>% factor)
     testspecificity<-specfunc(results)
@@ -156,30 +156,30 @@ randomforest<-function(data_train,data_test,numoftrees=10,includeplot=FALSE){
   }
   if (nlevels(trainrf_y_pred %>% factor)==1){
     if (levels(trainrf_y_pred %>% factor)=='1'){
-      trainsensitivity<-nrow(data_train %>% filter(classification==1))/nrow(data_train)
+      trainsensitivity<-nrow(data_train %>% stats::filter(classification==1))/nrow(data_train)
       trainspecificity<-0
     }
     if (levels(trainrf_y_pred %>% factor)=='0'){
       trainsensitivity<-0
-      trainspecificity<-nrow(data_train %>% filter(classification==0))/nrow(data_train)
+      trainspecificity<-nrow(data_train %>% stats::filter(classification==0))/nrow(data_train)
     }
   }
   if (nlevels(trainrf_y_pred %>% factor)!=1){
-    results = tibble(y_real  = data_train$classification %>% factor,
+    results = tibble::tibble(y_real  = data_train$classification %>% factor,
                      y_pred  = trainrf_y_pred %>% factor,
                      Correct = ifelse(y_real == y_pred,"yes","no") %>% factor)
     trainspecificity<-specfunc(results)
     trainsensitivity<-sensfunc(results)
   }
   if (includeplot==TRUE){
-    results = tibble(y_real  = data_test$classification %>% factor,
+    results = tibble::tibble(y_real  = data_test$classification %>% factor,
                      y_pred  = testrf_y_pred %>% factor,
                      Correct = ifelse(y_real == y_pred,"yes","no") %>% factor)
 
     title = 'Performance on 10% unseen data - random forest'
     xlab  = 'Measured (Real class)'
     ylab  = 'Predicted (Class assigned by random forest)'
-    plot(ggplot(results,aes(x = testrf_y_pred, y = data_test$classification, colour = Correct)) +
+    graphics::plot(ggplot2::ggplot(results,aes(x = testrf_y_pred, y = data_test$classification, colour = Correct)) +
            geom_point() +
            ggtitle(label = title, subtitle = paste0("Accuracy = ", 100*round(testrf_accuracy_Test,3),"%")) +
            xlab(xlab) +
@@ -189,7 +189,7 @@ randomforest<-function(data_train,data_test,numoftrees=10,includeplot=FALSE){
            geom_jitter() +
            theme_bw())
   }
-  return_list <- list("training"=trainrf_accuracy_Test,"test" = testrf_accuracy_Test,"testsensitivity"=testsensitivity,"testspecificity"=testspecificity,"trainsensitivity"=trainsensitivity,"trainspecificity"=trainspecificity,"importance"=importance(training.rf))
+  return_list <- list("training"=trainrf_accuracy_Test,"test" = testrf_accuracy_Test,"testsensitivity"=testsensitivity,"testspecificity"=testspecificity,"trainsensitivity"=trainsensitivity,"trainspecificity"=trainspecificity,"importance"=randomForest::importance(training.rf))
   return(return_list)
 }
 
@@ -202,14 +202,15 @@ randomforest<-function(data_train,data_test,numoftrees=10,includeplot=FALSE){
 #' @param kernel Type of kernel to use for SVM model (default:linear)
 #' @param degree Degree for kernel used (in polynomial or radial case)
 #' @param poly Binary parameter stating whether the chosen kernel is polynomial of degree greater than 1 (default:0)
+#' @param includeplot Show performance scatter plot (default:FALSE)
 #' @return List containing performance percentages, accessed using training (training accuracy), test (test accuracy), trainsensitivity, testsensitivity, trainspecificity, testspecificity.
 #' @keywords svm
 #' @keywords classification
 #' @export
 #' @examples
-#' svm(data_train,data_test,kernel='radial',degree=3)
-#' svm(data_train,data_test,kernel='sigmoid')
-#' svm(data_train,data_test,kernel='poly',degree=4,poly=1)
+#' "svm(data_train,data_test,kernel='radial',degree=3)"
+#' "svm(data_train,data_test,kernel='sigmoid')"
+#' "svm(data_train,data_test,kernel='poly',degree=4,poly=1)"
 svm<-function(data_train,data_test,kernel='linear',degree=3,poly=0,includeplot=FALSE){
   if (poly==1){
     classifier = e1071::svm(formula = classification ~ .,
@@ -229,21 +230,21 @@ svm<-function(data_train,data_test,kernel='linear',degree=3,poly=0,includeplot=F
                             type = 'C-classification',
                             kernel = kernel,scale=FALSE)
   }
-  svmy_pred_train = predict(classifier, newdata = subset(data_train,select=-c(classification)))
+  svmy_pred_train = stats::predict(classifier, newdata = subset(data_train,select=-c(classification)))
   svmcm_train = table(data_train[, 1], svmy_pred_train)
   svmaccuracy_Train <- sum(diag(svmcm_train)) / sum(svmcm_train)
   if (nlevels(svmy_pred_train %>% factor)==1){
     if (levels(svmy_pred_train %>% factor)=='1'){
-      sensitivity_train<-nrow(data_train %>% filter(classification==1))/nrow(data_train)
+      sensitivity_train<-nrow(data_train %>% stats::filter(classification==1))/nrow(data_train)
       specificity_train<-0
     }
     if (levels(svmy_pred_train %>% factor)=='0'){
       sensitivity_train<-0
-      specificity_train<-nrow(data_train %>% filter(classification==0))/nrow(data_train)
+      specificity_train<-nrow(data_train %>% stats::filter(classification==0))/nrow(data_train)
     }
   }
   if (nlevels(svmy_pred_train %>% factor)!=1){
-    results_train = tibble(y_real  = data_train$classification %>% factor,
+    results_train = tibble::tibble(y_real  = data_train$classification %>% factor,
                            y_pred  = svmy_pred_train %>% factor,
                            Correct = ifelse(y_real == y_pred,"yes","no") %>% factor)
     sensitivity_train<-sensfunc(results_train)
@@ -251,21 +252,21 @@ svm<-function(data_train,data_test,kernel='linear',degree=3,poly=0,includeplot=F
   }
 
 
-  svmy_pred = predict(classifier, newdata = subset(data_test,select=-c(classification)))
+  svmy_pred = stats::predict(classifier, newdata = subset(data_test,select=-c(classification)))
   svmcm = table(data_test[, 1], svmy_pred)
   svmaccuracy_Test <- sum(diag(svmcm)) / sum(svmcm)
   if (nlevels(svmy_pred %>% factor)==1){
     if (levels(svmy_pred %>% factor)=='1'){
-      sensitivity<-nrow(data_test %>% filter(classification==1))/nrow(data_test)
+      sensitivity<-nrow(data_test %>% stats::filter(classification==1))/nrow(data_test)
       specificity<-0
     }
     if (levels(svmy_pred %>% factor)=='0'){
       sensitivity<-0
-      specificity<-nrow(data_test %>% filter(classification==0))/nrow(data_test)
+      specificity<-nrow(data_test %>% stats::filter(classification==0))/nrow(data_test)
     }
   }
   if (nlevels(svmy_pred %>% factor)!=1){
-    results = tibble(y_real  = data_test$classification %>% factor,
+    results = tibble::tibble(y_real  = data_test$classification %>% factor,
                      y_pred  = svmy_pred %>% factor,
                      Correct = ifelse(y_real == y_pred,"yes","no") %>% factor)
     sensitivity<-sensfunc(results)
@@ -273,14 +274,14 @@ svm<-function(data_train,data_test,kernel='linear',degree=3,poly=0,includeplot=F
   }
 
   if (includeplot==TRUE){
-    results = tibble(y_real  = data_test$classification %>% factor,
+    results = tibble::tibble(y_real  = data_test$classification %>% factor,
                      y_pred  = svmy_pred %>% factor,
                      Correct = ifelse(y_real == y_pred,"yes","no") %>% factor)
 
     title = 'Performance on 10% unseen data - SVM'
     xlab  = 'Measured (Real class)'
     ylab  = 'Predicted (Class assigned by SVM)'
-    plot(ggplot(results,aes(x = svmy_pred, y = data_test$classification, colour = Correct)) +
+    graphics::plot(ggplot2::ggplot(results,aes(x = svmy_pred, y = data_test$classification, colour = Correct)) +
            geom_point() +
            ggtitle(label = title, subtitle = paste0("Accuracy = ", 100*round(svmaccuracy_Test,3),"%")) +
            xlab(xlab) +
@@ -307,7 +308,7 @@ svm<-function(data_train,data_test,kernel='linear',degree=3,poly=0,includeplot=F
 #' @keywords classification
 #' @export
 #' @examples
-#' svmlinear(data_train,data_test)
+#' "svmlinear(data_train,data_test)"
 svmlinear<-function(data_train,data_test,includeplot=FALSE){
   svm(data_train,data_test,kernel='linear',poly=0,includeplot=includeplot)
 }
@@ -322,7 +323,7 @@ svmlinear<-function(data_train,data_test,includeplot=FALSE){
 #' @keywords classification
 #' @export
 #' @examples
-#' svmpolynomial2(data_train,data_test)
+#' "svmpolynomial2(data_train,data_test)"
 svmpolynomial2<-function(data_train,data_test,includeplot=FALSE){
   svm(data_train,data_test,kernel='polynomial',degree=2,poly=1,includeplot=includeplot)
 }
@@ -337,7 +338,7 @@ svmpolynomial2<-function(data_train,data_test,includeplot=FALSE){
 #' @keywords classification
 #' @export
 #' @examples
-#' svmpolynomial3(data_train,data_test)
+#' "svmpolynomial3(data_train,data_test)"
 svmpolynomial3<-function(data_train,data_test,includeplot=FALSE){
   svm(data_train,data_test,kernel='polynomial',degree=3,poly=1,includeplot=includeplot)
 }
@@ -352,7 +353,7 @@ svmpolynomial3<-function(data_train,data_test,includeplot=FALSE){
 #' @keywords classification
 #' @export
 #' @examples
-#' svmpolynomial4(data_train,data_test)
+#' "svmpolynomial4(data_train,data_test)"
 svmpolynomial4<-function(data_train,data_test,includeplot=FALSE){
   svm(data_train,data_test,kernel='polynomial',degree=4,poly=1,includeplot=includeplot)
 }
@@ -367,7 +368,7 @@ svmpolynomial4<-function(data_train,data_test,includeplot=FALSE){
 #' @keywords classification
 #' @export
 #' @examples
-#' svmradial(data_train,data_test)
+#' "svmradial(data_train,data_test)"
 svmradial<-function(data_train,data_test,includeplot=FALSE){
   svm(data_train,data_test,kernel='radial',degree=3,poly=0,includeplot=includeplot)
 }
@@ -382,7 +383,7 @@ svmradial<-function(data_train,data_test,includeplot=FALSE){
 #' @keywords classification
 #' @export
 #' @examples
-#' svmsigmoid(data_train,data_test)
+#' "svmsigmoid(data_train,data_test)"
 svmsigmoid<-function(data_train,data_test,includeplot=FALSE){
   svm(data_train,data_test,kernel='sigmoid',poly=0,includeplot=includeplot)
 }

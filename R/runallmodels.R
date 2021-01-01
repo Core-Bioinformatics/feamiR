@@ -12,7 +12,7 @@
 #' @keywords classification
 #' @export
 #' @examples
-#' runallmodels(num_trees=50,kernel='radial',degree=3,poly=1,file_path='/subsamples/sample')
+#' "runallmodels(num_trees=50,kernel='radial',degree=3,poly=1,file_path='/subsamples/sample')"
 
 runallmodels<-function(num_trees=20,kernel='linear',degree=3,poly=0,file_path=file_path){
   l<-data.frame(matrix(nrow = 100, ncol = 5))
@@ -25,7 +25,7 @@ runallmodels<-function(num_trees=20,kernel='linear',degree=3,poly=0,file_path=fi
   
   
   #Initialise dtreevote which will be voting scheme for dtree
-  coltraining <- read.csv(paste(file_path,toString(1),".csv", sep=""), header = TRUE)
+  coltraining <- utils::read.csv(paste(file_path,toString(1),".csv", sep=""), header = TRUE)
   coltraining = subset(coltraining, select = -c(X) )
   y<-data.frame(matrix(nrow = ncol(coltraining),ncol=101))
   rownames(y) <- colnames(coltraining)
@@ -42,7 +42,7 @@ runallmodels<-function(num_trees=20,kernel='linear',degree=3,poly=0,file_path=fi
   
   
   for (i in (0:99)){
-    training <- read.csv(paste(file_path,toString(i),".csv", sep=""), header = TRUE,colClasses=c('classification'='factor'))
+    training <- utils::read.csv(paste(file_path,toString(i),".csv", sep=""), header = TRUE,colClasses=c('classification'='factor'))
     training = subset(training,select = -c(X))
     listoffeatures <- colnames(subset(training, select = -c(classification)))
     shuffledtrain <- training[sample(nrow(training)),]
@@ -120,13 +120,13 @@ runallmodels<-function(num_trees=20,kernel='linear',degree=3,poly=0,file_path=fi
   accuracies1<-rbind(accuracies0,svm)
   
 
-  p<-ggplot(na.omit(accuracies1), aes(x=model, y=accuracy,colour=model,fill=reorder(type,-accuracy)))+ylim(0.5,1)+ylab('accuracy')+scale_fill_grey(start=0.2, end=0.8)+
+  p<-ggplot2::ggplot(stats::na.omit(accuracies1), aes(x=model, y=accuracy,colour=model,fill=stats::reorder(type,-accuracy)))+ylim(0.5,1)+ylab('accuracy')+scale_fill_grey(start=0.2, end=0.8)+
     geom_boxplot()+theme(plot.title = element_text(hjust = 0.5))
   print(p)
-  p<-ggplot(na.omit(accuracies1), aes(x=model, y=sensitivity,colour=model,fill=reorder(type,-accuracy)))+ylim(0.5,1)+scale_fill_grey(start=0.2, end=0.8)+
+  p<-ggplot2::ggplot(stats::na.omit(accuracies1), aes(x=model, y=sensitivity,colour=model,fill=stats::reorder(type,-accuracy)))+ylim(0.5,1)+scale_fill_grey(start=0.2, end=0.8)+
     geom_boxplot()+theme(plot.title = element_text(hjust = 0.5))
   print(p)
-  p<-ggplot(na.omit(accuracies1), aes(x=model, y=specificity,colour=model,fill=reorder(type,-accuracy)))+ylim(0.5,1)+scale_fill_grey(start=0.2, end=0.8)+
+  p<-ggplot2::ggplot(stats::na.omit(accuracies1), aes(x=model, y=specificity,colour=model,fill=stats::reorder(type,-accuracy)))+ylim(0.5,1)+scale_fill_grey(start=0.2, end=0.8)+
     geom_boxplot()+theme(plot.title = element_text(hjust = 0.5))
   print(p)
   return_list<-list("resultdf"=accuracies1,"dtreevote"=y,"ongoingginis"=ongoingginis)
@@ -144,10 +144,10 @@ runallmodels<-function(num_trees=20,kernel='linear',degree=3,poly=0,file_path=fi
 #' @keywords voting scheme
 #' @export
 #' @examples
-#' dtreevoting(num_runs=100,num_levels=10,file_path='/subsamples/sample')
+#' "dtreevoting(num_runs=100,num_levels=10,file_path='/subsamples/sample')"
 
 dtreevoting<-function(num_runs=100,num_levels=10,file_path=file_path){
-  coltraining <- read.csv(paste(file_path,toString(1),".csv", sep=""), header = TRUE)
+  coltraining <- utils::read.csv(paste(file_path,toString(1),".csv", sep=""), header = TRUE)
   coltraining = subset(coltraining, select = -c(X) )
   y<-data.frame(matrix(nrow = ncol(coltraining),ncol=num_runs+1))
   rownames(y) <- colnames(coltraining)
@@ -156,7 +156,7 @@ dtreevoting<-function(num_runs=100,num_levels=10,file_path=file_path){
   }
   
   for (i in (0:num_runs-1)){
-    training <- read.csv(paste(file_path,toString(i),".csv", sep=""), header = TRUE,colClasses=c('classification'='factor'))
+    training <- utils::read.csv(paste(file_path,toString(i),".csv", sep=""), header = TRUE,colClasses=c('classification'='factor'))
     training = subset(training,select = -c(X))
     listoffeatures <- colnames(subset(training, select = -c(classification)))
     shuffledtrain <- training[sample(nrow(training)),]
@@ -200,10 +200,10 @@ dtreevoting<-function(num_runs=100,num_levels=10,file_path=file_path){
 #' @keywords Gini
 #' @export
 #' @examples
-#' rfgini(num_runs=100,num_trees=30,file_path='/subsamples/sample')
+#' "rfgini(num_runs=100,num_trees=30,file_path='/subsamples/sample')"
 
 rfgini<-function(num_runs=100,num_trees=30,file_path=file_path){
-  coltraining <- read.csv(paste(file_path,toString(1),".csv", sep=""), header = TRUE)
+  coltraining <- utils::read.csv(paste(file_path,toString(1),".csv", sep=""), header = TRUE)
   coltraining = subset(coltraining, select = -c(X) )
   ongoingginis<-data.frame(matrix(nrow=ncol(coltraining),ncol=101))
   rownames(ongoingginis)<-colnames(coltraining)
@@ -212,7 +212,7 @@ rfgini<-function(num_runs=100,num_trees=30,file_path=file_path){
   }
 
   for (i in (0:num_runs-1)){
-    training <- read.csv(paste(file_path,toString(i),".csv", sep=""), header = TRUE,colClasses=c('classification'='factor'))
+    training <- utils::read.csv(paste(file_path,toString(i),".csv", sep=""), header = TRUE,colClasses=c('classification'='factor'))
     training = subset(training,select = -c(X))
     listoffeatures <- colnames(subset(training, select = -c(classification)))
     shuffledtrain <- training[sample(nrow(training)),]

@@ -22,7 +22,7 @@ Polynomial degree 3 SVM
 This function implements a polynomial degree 3 SVM using the general svm function (for ease of use in feature selection)
 }
 \examples{
-svmpolynomial3(data_train,data_test)
+"svmpolynomial3(data_train,data_test)"
 }
 \keyword{classification}
 \keyword{svm}

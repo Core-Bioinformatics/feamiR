@@ -22,7 +22,7 @@ Sigmoid SVM
 This function implements a sigmoid SVM using general svm function (for ease of use in feature selection)
 }
 \examples{
-svmsigmoid(data_train,data_test)
+"svmsigmoid(data_train,data_test)"
 }
 \keyword{classification}
 \keyword{svm}

@@ -22,7 +22,7 @@ Radial SVM
 This function implements a radial SVM using the general svm function (for ease of use in feature selection)
 }
 \examples{
-svmradial(data_train,data_test)
+"svmradial(data_train,data_test)"
 }
 \keyword{classification}
 \keyword{svm}

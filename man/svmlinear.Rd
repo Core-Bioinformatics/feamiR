@@ -22,7 +22,7 @@ Linear SVM
 This function implements a linear SVM using the general svm function (for ease of use in feature selection)
 }
 \examples{
-svmlinear(data_train,data_test)
+"svmlinear(data_train,data_test)"
 }
 \keyword{classification}
 \keyword{svm}

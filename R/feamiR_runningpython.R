@@ -14,8 +14,9 @@
 #' @param interactions CSV file containing only validated interactions between miRNA and mRNA (e.g. from miRTarBase). Must have columns miRNA (e.g. hsa-miR-576-3p), Target Gene (e.g. Serpinb8) and optionally Experiments (e.g. qRT-PCR) and/or Support Type (with values Functional MTI, Functional MTI (Weak), Non-Functional MTI, Non-Functional MTI (Weak))
 #' @param annotations GTF file (e.g. from Ensembl) with attributes seqname (chromosome), feature (with 3'UTRs labelled exactly 'three_prime_utr'), transcript_id, gene_id and gene_name matching fullchromosomes and interactions
 #' @param fullchromosomes Fasta file (e.g. top level file from Ensembl) containing full sequence for each chromosome with name as chromosome (e.g. 1, matching seqname from annotations)
+#' @param seed Binary, 1 if full miRNA seed features should be included in statistical analysis. Default: 1.
 #' @param nonseed_miRNA Binary, 1 if full miRNA features should be included in statistical analysis. Seed features are always included. Default: 0.
-#' @param flanking_mRNA Binary, 1 if flanking region mRNA features should be included in statistical analysis. Seed features are always included. Default: 0.
+#' @param flankingmRNA Binary, 1 if flanking region mRNA features should be included in statistical analysis. Seed features are always included. Default: 0.
 #' @param UTR_output String. File name 3'UTR fasta file should be saved as (when annotations and full chromosomes files are supplied)
 #' @param chr Number of chromosomes for species in question.
 #' @param o Output prefix for any files created and saved.
@@ -25,13 +26,13 @@
 #' @param sreformatpath File path for installed sreformat (default: sreformat)
 #' @param patmanpath File path for installed patman (default: patman)
 #' @param minvalidationentries Minimum number of entries for a validation category to be considered separately in statistical analysis (default: 40)
-#' @param patmanout TXT file containing patman output (saved as output_prefix + patman_seed.txt). If supplied, analysis begins at patman output processing stage.
+#' @param patmanoutput TXT file containing patman output (saved as output_prefix + patman_seed.txt). If supplied, analysis begins at patman output processing stage.
 #' @param num_runs Number of subsamples to create (default: 100)
 #' @return CSV containing full positive and negative sets. Folder statistical_analysis of heatmaps showing significance of various features under Fisher exact and Chi-squared tests. Seed analysis will always be run, full miRNA and flanking analysis if the respective parameters are set to 1. Folder subsamples containing CSVs for 100 subsamples with positive and negative samples equal for use in classifiers and feature selection.
 #' @export
 #' @examples
-#' preparedataset(pythonversion='python3',miRNA_full='miRNA_full_mmu.fasta',annotations='Mus_musculus.GRCm38.100.chr.gtf',fullchromosomes='Mus_musculus.GRCm38.dna.toplevel.fa',interactions='mmu_MTI.csv',chr=20,o='feamiR_ignore')
-#' preparedataset(pythonversion='python3',interactions='mmu_MTI.csv',positiveset='feamiR_seed_positive.csv',negativeset='feamiR_seed_negative.csv',o='feamiR_')
+#' "preparedataset(pythonversion='python3',miRNA_full='miRNA_full_mmu.fasta',annotations='Mus_musculus.GRCm38.100.chr.gtf',fullchromosomes='Mus_musculus.GRCm38.dna.toplevel.fa',interactions='mmu_MTI.csv',chr=20,o='feamiR_ignore')"
+#' "preparedataset(pythonversion='python3',interactions='mmu_MTI.csv',positiveset='feamiR_seed_positive.csv',negativeset='feamiR_seed_negative.csv',o='feamiR_')"
 preparedataset <- function(pythonversion='python',mRNA_3pUTR='',miRNA_full='',interactions='',annotations='',fullchromosomes='',seed=1,nonseed_miRNA=0,flankingmRNA=0,UTR_output='',chr='',o='feamiR_',positiveset='',negativeset='',sreformatpath='sreformat',patmanpath='patman',patmanoutput='',minvalidationentries=40,num_runs=100){
   if (!missing(mRNA_3pUTR)){mRNA_3pUTR = paste('-mRNA_3pUTR ',mRNA_3pUTR,sep='')}
   if (!missing(miRNA_full)){miRNA_full = paste('-miRNA_full ',miRNA_full,sep='')}

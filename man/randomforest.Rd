@@ -24,7 +24,7 @@ Random forest
 This function trains a random forest on the training dataset and uses it to predict the classification of the test dataset. The resulting accuracy, sensitivity and specificity are returned, as well as a summary of the importance of features in the dataset.
 }
 \examples{
-randomforest(data_train,data_test,numoftrees=50)
+"randomforest(data_train,data_test,numoftrees=50)"
 }
 \keyword{classification}
 \keyword{rf}

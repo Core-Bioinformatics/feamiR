@@ -19,13 +19,13 @@
 #' @keywords genetic
 #' @export
 #' @examples
-#' geneticalgorithm(svm_linear,30,data_train,data_test)
+#' "geneticalgorithm(svm_linear,30,data_train,data_test)"
 
 geneticalgorithm <- function(model=svmlinear,k=30,training,test,parallel=T,mutprob=0.1,crossprob=0.8,popsize=20,maxiter=1000,maxiter_withoutimprovement=300,numberpassedon=3,plot=F){
   param_nBits=ncol(training)-1
-  col_names=tail(colnames(training),param_nBits)
+  col_names=utils::tail(colnames(training),param_nBits)
   custom_fitness <- function(vars){
-    currentvarnames=col_names[setNames(vars,col_names)==1]
+    currentvarnames=col_names[stats::setNames(vars,col_names)==1]
     if (length(currentvarnames)==0){
       return(0)}
     varfilt<-currentvarnames[!(currentvarnames%in%col_names)]

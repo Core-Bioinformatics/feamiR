@@ -13,7 +13,7 @@ nextbestfeature<-function(model,trainingsam,testsam,featuresleft,ongoingfeatures
   training<-takefeaturecolumns(training,union(featuresleft,ongoingfeatures))
   test<-takefeaturecolumns(testsam,union(featuresleft,ongoingfeatures))
   maxaccuracy<-0
-  maxfeat<-head(featuresleft,1)
+  maxfeat<-utils::head(featuresleft,1)
   for (feat in featuresleft){
     feat_trainingsample<-takefeaturecolumns(trainingsam,append(ongoingfeatures,feat))
     feat_testsample<-takefeaturecolumns(testsam,append(ongoingfeatures,feat))
@@ -62,7 +62,8 @@ beforeandafter<-function(vect,centre,places,threshold){
 #' @keywords feature selection
 #' @export
 #' @examples
-#' forwardfeatureselection(linear_svm,data_train,data_test,subset(colnames(data_train),select=-c(classification)))
+#' "listoffeatures = subset(colnames(data_train),select=-c(classification))"
+#' "forwardfeatureselection(linear_svm,data_train,data_test,listoffeatures)"
 forwardfeatureselection <-function(model,training,test,featurelist,includePlot=FALSE){
   ongoing<-c()
   featureaccuracy<-data.frame(matrix(nrow=length(featurelist), ncol = 0))
@@ -82,8 +83,8 @@ forwardfeatureselection <-function(model,training,test,featurelist,includePlot=F
   }
   x<-featureaccuracy$'number of features'
   y<-featureaccuracy$accuracy
-  loess30<-loess(y ~ x,degree=1,span=0.2)
-  y1 <- predict(loess30,newdata=x,se=FALSE)
+  loess30<-stats::loess(y ~ x,degree=1,span=0.2)
+  y1 <- stats::predict(loess30,newdata=x,se=FALSE)
   flag<-TRUE
   i<-3
   numfeat<-length(x)
@@ -101,19 +102,19 @@ forwardfeatureselection <-function(model,training,test,featurelist,includePlot=F
   }
 
   y2_<-featureaccuracy$test_accuracy
-  loess30_2<-loess(y2_ ~ x,degree=1,span=0.2)
-  y2 <- predict(loess30_2,newdata=x,se=FALSE)
+  loess30_2<-stats::loess(y2_ ~ x,degree=1,span=0.2)
+  y2 <- stats::predict(loess30_2,newdata=x,se=FALSE)
 
   y4_<-featureaccuracy$training_accuracy
-  loess30_4<-loess(y4_ ~ x,degree=1,span=0.2)
-  y4 <- predict(loess30_4,newdata=x,se=FALSE)
+  loess30_4<-stats::loess(y4_ ~ x,degree=1,span=0.2)
+  y4 <- stats::predict(loess30_4,newdata=x,se=FALSE)
 
   if (includePlot == TRUE){
-    plot(head(x,numfeat),head(y,numfeat),col='red',main='Number of Features Against Accuracy up to Plateau',xlab='Number of features',ylab='Accuracy',ylim=c(0:1),type='b') + text(head(x,numfeat), head(y1,numfeat), head(ongoing,numfeat), cex=0.6, pos=4,adj=0.5, col="red",srt=90)
-    points(head(x,numfeat),head(y2_,numfeat),col='green')
-    lines(head(x,numfeat),head(y1,numfeat),col='red')
-    lines(head(x,numfeat),head(y2,numfeat),col='green')}
+    graphics::plot(utils::head(x,numfeat),utils::head(y,numfeat),col='red',main='Number of Features Against Accuracy up to Plateau',xlab='Number of features',ylab='Accuracy',ylim=c(0:1),type='b') + graphics::text(utils::head(x,numfeat), utils::head(y1,numfeat), utils::head(ongoing,numfeat), cex=0.6, pos=4,adj=0.5, col="red",srt=90)
+    graphics::points(utils::head(x,numfeat),utils::head(y2_,numfeat),col='green')
+    graphics::lines(utils::head(x,numfeat),utils::head(y1,numfeat),col='red')
+    graphics::lines(utils::head(x,numfeat),utils::head(y2,numfeat),col='green')}
 
-  return_list <- list("feature_list" = head(ongoing,numfeat), "accuracy" = y1[numfeat],"testacc"=featureaccuracy$test_accuracy[numfeat],"trainacc"=featureaccuracy$train_accuracy[numfeat],"trainsens"=featureaccuracy$train_sensitivity[numfeat],"trainspec"=featureaccuracy$train_specificity[numfeat],"testsens"=featureaccuracy$test_sensitivity[numfeat],"testspec"=featureaccuracy$test_specificity[numfeat])
+  return_list <- list("feature_list" = utils::head(ongoing,numfeat), "accuracy" = y1[numfeat],"testacc"=featureaccuracy$test_accuracy[numfeat],"trainacc"=featureaccuracy$train_accuracy[numfeat],"trainsens"=featureaccuracy$train_sensitivity[numfeat],"trainspec"=featureaccuracy$train_specificity[numfeat],"testsens"=featureaccuracy$test_sensitivity[numfeat],"testspec"=featureaccuracy$test_specificity[numfeat])
   return(return_list)
 }

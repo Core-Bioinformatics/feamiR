@@ -35,7 +35,7 @@ Embryonic Genetic Algorithm
 This function is based on Embryonic Genetic Algorithms. It performs feature selection by maintaining an ongoing set of 'good' set of features which are improved run by run. It outputs training and test accuracy, sensitivity and specificity and a list of <=k features.
 }
 \examples{
-eGA(30,data_train,data_test,maxnumruns=100)
+"eGA(30,data_train,data_test,maxnumruns=100)"
 }
 \keyword{eGA}
 \keyword{embryonic}

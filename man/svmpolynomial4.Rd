@@ -22,7 +22,7 @@ Polynomial degree 4 SVM
 This function implements a polynomial degree 4 SVM using the general svm function (for ease of use in feature selection)
 }
 \examples{
-svmpolynomial4(data_train,data_test)
+"svmpolynomial4(data_train,data_test)"
 }
 \keyword{classification}
 \keyword{svm}

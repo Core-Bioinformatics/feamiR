@@ -5,7 +5,13 @@
 \title{Tuning number of trees hyperparameter
 This function trains random forests with a range of number of trees so the optimal number can be identified (using the resulting plot) with cross validation}
 \usage{
-selectrfnumtrees(data, maxnum = 100, title = "", output_prefix = "")
+selectrfnumtrees(
+  data,
+  maxnum = 100,
+  title = "",
+  showplots = T,
+  output_prefix = ""
+)
 }
 \arguments{
 \item{data}{Dataset: dataframe containing classification column and all other column features. Both the training and test datasets will be taken from this dataset.}
@@ -13,6 +19,10 @@ selectrfnumtrees(data, maxnum = 100, title = "", output_prefix = "")
 \item{maxnum}{Maximum number of trees to be considered. All numbers between 1 and maxnum will be considered. Default: 100.}
 
 \item{title}{Title to be used for the resulting boxplot}
+
+\item{showplots}{T if plots should be shown in standard output, F is plots should be saved as jpg files. Default: T.}
+
+\item{output_prefix}{Prefix used for saving plots. If showplots==F then plots are saved here. Otherwise, standard output.}
 }
 \value{
 Dataframe containing test and training accuracy, sensitivity and specificity
@@ -22,7 +32,7 @@ Tuning number of trees hyperparameter
 This function trains random forests with a range of number of trees so the optimal number can be identified (using the resulting plot) with cross validation
 }
 \examples{
-selectrfnumtrees(data,100,'Boxplots showing distribution of training and test performance for random forest using number of trees 1 to 100')
+"selectrfnumtrees(data,100,'RF boxplots')"
 }
 \keyword{forest}
 \keyword{hyperparameter}

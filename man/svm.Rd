@@ -23,6 +23,8 @@ svm(
 \item{degree}{Degree for kernel used (in polynomial or radial case)}
 
 \item{poly}{Binary parameter stating whether the chosen kernel is polynomial of degree greater than 1 (default:0)}
+
+\item{includeplot}{Show performance scatter plot (default:FALSE)}
 }
 \value{
 List containing performance percentages, accessed using training (training accuracy), test (test accuracy), trainsensitivity, testsensitivity, trainspecificity, testspecificity.
@@ -31,9 +33,9 @@ List containing performance percentages, accessed using training (training accur
 SVM
 }
 \examples{
-svm(data_train,data_test,kernel='radial',degree=3)
-svm(data_train,data_test,kernel='sigmoid')
-svm(data_train,data_test,kernel='poly',degree=4,poly=1)
+"svm(data_train,data_test,kernel='radial',degree=3)"
+"svm(data_train,data_test,kernel='sigmoid')"
+"svm(data_train,data_test,kernel='poly',degree=4,poly=1)"
 }
 \keyword{classification}
 \keyword{svm}

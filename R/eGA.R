@@ -46,14 +46,14 @@ hybridfeatureselection <- function(k,training,test,features,ongoing=c(),lengthof
   #crossover
   pos<-sample(1:l,1,replace=TRUE)
   alt_set<-sample(featureslessongoing,l,replace=TRUE)
-  ab<-union(head(ongoingfeatures,pos),tail(alt_set,l-pos))
-  ba<-union(head(alt_set,pos),tail(ongoingfeatures,l-pos))
-  training_bb<-takefeaturecolumns(data_train,alt_set)
-  test_bb<-takefeaturecolumns(data_test,alt_set)
-  training_ab<-takefeaturecolumns(data_train,ab)
-  test_ab<-takefeaturecolumns(data_test,ab)
-  training_ba<-takefeaturecolumns(data_train,ba)
-  test_ba<-takefeaturecolumns(data_test,ba)
+  ab<-union(utils::head(ongoingfeatures,pos),utils::tail(alt_set,l-pos))
+  ba<-union(utils::head(alt_set,pos),utils::tail(ongoingfeatures,l-pos))
+  training_bb<-takefeaturecolumns(training,alt_set)
+  test_bb<-takefeaturecolumns(test,alt_set)
+  training_ab<-takefeaturecolumns(training,ab)
+  test_ab<-takefeaturecolumns(test,ab)
+  training_ba<-takefeaturecolumns(test,ba)
+  test_ba<-takefeaturecolumns(test,ba)
   model_bb<-model(training_bb,test_bb)
   model_ab<-model(training_ab,test_ab)
   model_ba<-model(training_ba,test_ba)
@@ -62,7 +62,7 @@ hybridfeatureselection <- function(k,training,test,features,ongoing=c(),lengthof
   acc_ba<-model_ba$training
 
   comparelist<-c(acc_bb,acc_ba,acc_ab,trainaccuracy)
-  str(comparelist)
+  utils::str(comparelist)
   if (trainaccuracy!=max(comparelist)){
     if (max(comparelist)==acc_ba){
       trainaccuracy<-acc_ba
@@ -155,7 +155,7 @@ hybridfeatureselection <- function(k,training,test,features,ongoing=c(),lengthof
 #' @keywords genetic
 #' @export
 #' @examples
-#' eGA(30,data_train,data_test,maxnumruns=100)
+#' "eGA(30,data_train,data_test,maxnumruns=100)"
 eGA <- function(k=30,data_train,data_test,mutprob=0.05,includePlot=FALSE,maxnumruns=50){
   goodnessoffeature<-data.frame(matrix(nrow = 1, ncol = length(listoffeatures)))
   for (i in (1:length(listoffeatures))){

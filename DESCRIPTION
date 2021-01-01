@@ -30,7 +30,11 @@ Depends:  reticulate,
           ggplot2,
           tidyr,
           plyr,
-          dplyr
+          dplyr,
+          magrittr,
+          tibble
+Imports: 
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1.9000
+License: GPL-2

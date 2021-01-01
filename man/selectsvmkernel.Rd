@@ -11,6 +11,10 @@ selectsvmkernel(data, title, showplots = T, output_prefix = "")
 \item{data}{Dataset: dataframe containing classification column and all other column features. Both the training and test datasets will be taken from this dataset.}
 
 \item{title}{Title to be used for the resulting boxplot}
+
+\item{showplots}{T if plots should be shown in standard output, F is plots should be saved as jpg files.}
+
+\item{output_prefix}{Prefix used for saving plots. If showplots==F then plots are saved here. Otherwise, standard output.}
 }
 \value{
 Dataframe containing test and training accuracy, sensitivity and specificity
@@ -20,7 +24,7 @@ Tuning SVM kernel
 This function trains SVMs with a range of kernels (linear, polynomial degree 2, 3 and 4, radial and sigmoid) using cross validation so the optimal kernel can be chosen (using the resulting plots). If specified (by showplots=F) the plots are saved as jpegs.
 }
 \examples{
-selectsvmkernel(data,'Boxplots showing distribution of training and test performance for random forest using number of trees 1 to 100')
+"selectsvmkernel(data,'RF boxplots')"
 }
 \keyword{SVM}
 \keyword{hyperparameter}

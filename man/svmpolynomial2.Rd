@@ -22,7 +22,7 @@ Polynomial degree 2 SVM
 This function implements a polynomial degree 2 SVM using the general svm function (for ease of use in feature selection)
 }
 \examples{
-svmpolynomial2(data_train,data_test)
+"svmpolynomial2(data_train,data_test)"
 }
 \keyword{classification}
 \keyword{svm}

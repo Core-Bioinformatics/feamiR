@@ -22,7 +22,7 @@ Decision tree voting scheme
 This function implements a feature selection approach based on Decision Trees, using a voting scheme across the top levels on trees trained on multiple subsamples.
 }
 \examples{
-dtreevoting(num_runs=100,num_levels=10,file_path='/subsamples/sample')
+"dtreevoting(num_runs=100,num_levels=10,file_path='/subsamples/sample')"
 }
 \keyword{decision}
 \keyword{dtree}

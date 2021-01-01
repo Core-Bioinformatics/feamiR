@@ -51,7 +51,7 @@ Set (unordered) of <=k features and training and test accuracy, sensitivity and 
 This function implements a standard genetic algorithm using GA package (\link[GA]{ga}) with a fitness function specialised for feature selection.
 }
 \examples{
-geneticalgorithm(svm_linear,30,data_train,data_test)
+"geneticalgorithm(svm_linear,30,data_train,data_test)"
 }
 \keyword{feature}
 \keyword{genetic}
