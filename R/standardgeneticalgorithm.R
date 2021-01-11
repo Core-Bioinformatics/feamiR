@@ -1,7 +1,6 @@
 
-#' Standard Genetic Algorithm
-#'
-#' This function implements a standard genetic algorithm using GA package (\link[GA]{ga}) with a fitness function specialised for feature selection.
+#' Standard Genetic Algorithm.
+#' Implements a standard genetic algorithm using GA package (\link[GA]{ga}) with a fitness function specialised for feature selection.
 #' @param model The ML models used to classify the data, typically SVM with a given kernel
 #' @param k Maximum number of features to be output.
 #' @param training Training dataset as a data.frame with classification column and column for each feature.
@@ -19,9 +18,31 @@
 #' @keywords genetic
 #' @export
 #' @examples
-#' "geneticalgorithm(svm_linear,30,data_train,data_test)"
+#' data_train = data.frame(
+#'       classification=as.factor(c(1,1,0,0,1,1,0,0,1,1)),
+#'       A=c(1,1,1,0,0,0,1,1,1,0),
+#'       B=c(0,1,1,0,1,1,0,1,1,0),
+#'       C=c(0,0,1,0,0,1,0,0,1,0),
+#'       D=c(0,1,1,0,0,0,1,0,0,0),
+#'       E=c(1,0,1,0,0,1,0,1,1,0))
+#' data_test = data.frame(
+#'       classification=as.factor(c(1,1,0,0,1,1,1,0)),
+#'       A=c(0,0,0,1,0,0,0,1),
+#'       B=c(1,1,1,0,0,1,1,1),
+#'       C=c(0,0,1,1,0,0,1,1),
+#'       D=c(0,0,1,1,0,1,0,1),
+#'       E=c(0,0,1,0,1,0,1,1))
+#' geneticalgorithm(
+#'   feamiR::svmlinear,
+#'   k=2,
+#'   data_train,
+#'   data_test,
+#'   parallel=FALSE,
+#'   maxiter=5,
+#'   maxiter_withoutimprovement=5,
+#'   popsize=10)
 
-geneticalgorithm <- function(model=svmlinear,k=30,training,test,parallel=T,mutprob=0.1,crossprob=0.8,popsize=20,maxiter=1000,maxiter_withoutimprovement=300,numberpassedon=3,plot=F){
+geneticalgorithm <- function(model=feamiR::svmlinear,k=30,training,test,parallel=T,mutprob=0.1,crossprob=0.8,popsize=20,maxiter=1000,maxiter_withoutimprovement=300,numberpassedon=3,plot=F){
   param_nBits=ncol(training)-1
   col_names=utils::tail(colnames(training),param_nBits)
   custom_fitness <- function(vars){

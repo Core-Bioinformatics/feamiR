@@ -2,8 +2,8 @@
 % Please edit documentation in R/eGA.R
 \name{eGA}
 \alias{eGA}
-\title{Embryonic Genetic Algorithm
-This function is based on Embryonic Genetic Algorithms. It performs feature selection by maintaining an ongoing set of 'good' set of features which are improved run by run. It outputs training and test accuracy, sensitivity and specificity and a list of <=k features.}
+\title{Embryonic Genetic Algorithm.
+Feature selection based on Embryonic Genetic Algorithms. It performs feature selection by maintaining an ongoing set of 'good' set of features which are improved run by run. It outputs training and test accuracy, sensitivity and specificity and a list of <=k features.}
 \usage{
 eGA(
   k = 30,
@@ -31,11 +31,31 @@ eGA(
 List containing (ordered list of) selected features, performance percentages, accessed using training (training accuracy), test (test accuracy), trainsensitivity, testsensitivity, trainspecificity, testspecificity. Also accessed using listofongoing is a list containing the length of the ongoing set at each stage.
 }
 \description{
-Embryonic Genetic Algorithm
-This function is based on Embryonic Genetic Algorithms. It performs feature selection by maintaining an ongoing set of 'good' set of features which are improved run by run. It outputs training and test accuracy, sensitivity and specificity and a list of <=k features.
+Embryonic Genetic Algorithm.
+Feature selection based on Embryonic Genetic Algorithms. It performs feature selection by maintaining an ongoing set of 'good' set of features which are improved run by run. It outputs training and test accuracy, sensitivity and specificity and a list of <=k features.
 }
 \examples{
-"eGA(30,data_train,data_test,maxnumruns=100)"
+data_train = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,0,0,1,1)),
+      A=c(1,1,1,0,0,0,1,1,1,0),
+      B=c(0,1,1,0,1,1,0,1,1,0),
+      C=c(0,0,1,0,0,1,0,0,1,0),
+      D=c(0,1,1,0,0,0,1,0,0,0),
+      E=c(1,0,1,0,0,1,0,1,1,0))
+data_test = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,1,0)),
+      A=c(0,0,0,1,0,0,0,1),
+      B=c(1,1,1,0,0,1,1,1),
+      C=c(0,0,1,1,0,0,1,1),
+      D=c(0,0,1,1,0,1,0,1),
+      E=c(0,0,1,0,1,0,1,1))
+data = read.csv(paste(system.file('samples/subsamples', package = "feamiR"),'/sample0.csv',sep=''))
+data = rbind(head(data,50),tail(data,50))
+data$classification = as.factor(data$classification)
+ind <- sample(2,nrow(data),replace=TRUE,prob=c(0.8,0.2))
+data_train <- data[ind==1,]
+data_test <- data[ind==2,]
+eGA(k=7,data_train,data_test,maxnumruns=3)
 }
 \keyword{eGA}
 \keyword{embryonic}

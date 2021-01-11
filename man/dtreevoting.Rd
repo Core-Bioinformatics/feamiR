@@ -2,8 +2,8 @@
 % Please edit documentation in R/runallmodels.R
 \name{dtreevoting}
 \alias{dtreevoting}
-\title{Decision tree voting scheme
-This function implements a feature selection approach based on Decision Trees, using a voting scheme across the top levels on trees trained on multiple subsamples.}
+\title{Decision tree voting scheme.
+Implements a feature selection approach based on Decision Trees, using a voting scheme across the top levels on trees trained on multiple subsamples.}
 \usage{
 dtreevoting(num_runs = 100, num_levels = 10, file_path = file_path)
 }
@@ -18,11 +18,14 @@ dtreevoting(num_runs = 100, num_levels = 10, file_path = file_path)
 Outputs a dataframe containing (first column) total number of appearances of each feature (each row is a feature). The rest of the columns represent 1 run each and contain the level at which the feature appears.
 }
 \description{
-Decision tree voting scheme
-This function implements a feature selection approach based on Decision Trees, using a voting scheme across the top levels on trees trained on multiple subsamples.
+Decision tree voting scheme.
+Implements a feature selection approach based on Decision Trees, using a voting scheme across the top levels on trees trained on multiple subsamples.
 }
 \examples{
-"dtreevoting(num_runs=100,num_levels=10,file_path='/subsamples/sample')"
+dtreevoting(
+  num_runs=5,
+  num_levels=10,
+  file_path=paste(system.file('samples/subsamples', package = "feamiR"),'/sample',sep=''))
 }
 \keyword{decision}
 \keyword{dtree}

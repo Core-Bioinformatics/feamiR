@@ -2,10 +2,11 @@
 % Please edit documentation in R/forwardfeatureselection.R
 \name{forwardfeatureselection}
 \alias{forwardfeatureselection}
-\title{Forward Feature Selection}
+\title{Forward Feature Selection.
+Performs forward feature selection on the given list of features, placing them in order of discriminative power using a given model on the given dataset up to the accuracy plateau.}
 \usage{
 forwardfeatureselection(
-  model,
+  model = feamiR::svmlinear,
   training,
   test,
   featurelist,
@@ -27,11 +28,26 @@ forwardfeatureselection(
 Ordered list of most discriminative features when classifying the dataset along with training and test accuracy, sensitivity and specificity
 }
 \description{
-This function performs forward feature selection on the given list of features, placing them in order of discriminative power using a given model on the given dataset up to the accuracy plateau.
+Forward Feature Selection.
+Performs forward feature selection on the given list of features, placing them in order of discriminative power using a given model on the given dataset up to the accuracy plateau.
 }
 \examples{
-"listoffeatures = subset(colnames(data_train),select=-c(classification))"
-"forwardfeatureselection(linear_svm,data_train,data_test,listoffeatures)"
+data_train = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,0,0,1,1)),
+      A=c(1,1,1,0,0,0,1,1,1,0),
+      B=c(0,1,1,0,1,1,0,1,1,0),
+      C=c(0,0,1,0,0,1,0,0,1,0),
+      D=c(0,1,1,0,0,0,1,0,0,0),
+      E=c(1,0,1,0,0,1,0,1,1,0))
+data_test = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,1,0)),
+      A=c(0,0,0,1,0,0,0,1),
+      B=c(1,1,1,0,0,1,1,1),
+      C=c(0,0,1,1,0,0,1,1),
+      D=c(0,0,1,1,0,1,0,1),
+      E=c(0,0,1,0,1,0,1,1))
+listoffeatures = colnames(data_train)[colnames(data_train)!='classification']
+forwardfeatureselection(feamiR::svmlinear,data_train,data_test,listoffeatures)
 }
 \keyword{feature}
 \keyword{forward}

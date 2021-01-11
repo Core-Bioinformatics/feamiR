@@ -2,10 +2,11 @@
 % Please edit documentation in R/standardgeneticalgorithm.R
 \name{geneticalgorithm}
 \alias{geneticalgorithm}
-\title{Standard Genetic Algorithm}
+\title{Standard Genetic Algorithm.
+Implements a standard genetic algorithm using GA package (\link[GA]{ga}) with a fitness function specialised for feature selection.}
 \usage{
 geneticalgorithm(
-  model = svmlinear,
+  model = feamiR::svmlinear,
   k = 30,
   training,
   test,
@@ -48,10 +49,33 @@ geneticalgorithm(
 Set (unordered) of <=k features and training and test accuracy, sensitivity and specificity using these features.
 }
 \description{
-This function implements a standard genetic algorithm using GA package (\link[GA]{ga}) with a fitness function specialised for feature selection.
+Standard Genetic Algorithm.
+Implements a standard genetic algorithm using GA package (\link[GA]{ga}) with a fitness function specialised for feature selection.
 }
 \examples{
-"geneticalgorithm(svm_linear,30,data_train,data_test)"
+data_train = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,0,0,1,1)),
+      A=c(1,1,1,0,0,0,1,1,1,0),
+      B=c(0,1,1,0,1,1,0,1,1,0),
+      C=c(0,0,1,0,0,1,0,0,1,0),
+      D=c(0,1,1,0,0,0,1,0,0,0),
+      E=c(1,0,1,0,0,1,0,1,1,0))
+data_test = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,1,0)),
+      A=c(0,0,0,1,0,0,0,1),
+      B=c(1,1,1,0,0,1,1,1),
+      C=c(0,0,1,1,0,0,1,1),
+      D=c(0,0,1,1,0,1,0,1),
+      E=c(0,0,1,0,1,0,1,1))
+geneticalgorithm(
+  feamiR::svmlinear,
+  k=2,
+  data_train,
+  data_test,
+  parallel=FALSE,
+  maxiter=5,
+  maxiter_withoutimprovement=5,
+  popsize=10)
 }
 \keyword{feature}
 \keyword{genetic}

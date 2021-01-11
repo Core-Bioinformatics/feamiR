@@ -3,7 +3,7 @@
 \name{svmradial}
 \alias{svmradial}
 \title{Radial SVM
-This function implements a radial SVM using the general svm function (for ease of use in feature selection)}
+Implements a radial SVM using the general svm function (for ease of use in feature selection)}
 \usage{
 svmradial(data_train, data_test, includeplot = FALSE)
 }
@@ -19,10 +19,20 @@ List containing performance percentages, accessed using training (training accur
 }
 \description{
 Radial SVM
-This function implements a radial SVM using the general svm function (for ease of use in feature selection)
+Implements a radial SVM using the general svm function (for ease of use in feature selection)
 }
 \examples{
-"svmradial(data_train,data_test)"
+data_train = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,0,0,1,1)),
+      A=c(1,1,1,0,0,0,1,1,1,0),
+      B=c(0,1,1,0,1,1,0,1,1,0),
+      C=c(0,0,1,0,0,1,0,0,1,0))
+data_test = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,1,0)),
+      A=c(0,0,0,1,0,0,0,1),
+      B=c(1,1,1,0,0,1,1,1),
+      C=c(0,0,1,1,0,0,1,1))
+svmradial(data_train,data_test)
 }
 \keyword{classification}
 \keyword{svm}

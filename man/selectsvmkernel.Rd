@@ -2,8 +2,8 @@
 % Please edit documentation in R/hyperparameters.R
 \name{selectsvmkernel}
 \alias{selectsvmkernel}
-\title{Tuning SVM kernel
-This function trains SVMs with a range of kernels (linear, polynomial degree 2, 3 and 4, radial and sigmoid) using cross validation so the optimal kernel can be chosen (using the resulting plots). If specified (by showplots=F) the plots are saved as jpegs.}
+\title{Tuning SVM kernel.
+Trains SVMs with a range of kernels (linear, polynomial degree 2, 3 and 4, radial and sigmoid) using cross validation so the optimal kernel can be chosen (using the resulting plots). If specified (by showplots=F) the plots are saved as jpegs.}
 \usage{
 selectsvmkernel(data, title, showplots = T, output_prefix = "")
 }
@@ -20,11 +20,15 @@ selectsvmkernel(data, title, showplots = T, output_prefix = "")
 Dataframe containing test and training accuracy, sensitivity and specificity
 }
 \description{
-Tuning SVM kernel
-This function trains SVMs with a range of kernels (linear, polynomial degree 2, 3 and 4, radial and sigmoid) using cross validation so the optimal kernel can be chosen (using the resulting plots). If specified (by showplots=F) the plots are saved as jpegs.
+Tuning SVM kernel.
+Trains SVMs with a range of kernels (linear, polynomial degree 2, 3 and 4, radial and sigmoid) using cross validation so the optimal kernel can be chosen (using the resulting plots). If specified (by showplots=F) the plots are saved as jpegs.
 }
 \examples{
-"selectsvmkernel(data,'RF boxplots')"
+data = read.csv(paste(system.file('samples/subsamples', package = "feamiR"),'/sample0.csv',sep=''))
+data = rbind(head(data,50),tail(data,50))
+data$classification = as.factor(data$classification)
+data = data[,2:ncol(data)]
+selectsvmkernel(data,'SVM boxplots')
 }
 \keyword{SVM}
 \keyword{hyperparameter}

@@ -3,7 +3,7 @@
 \name{decisiontree}
 \alias{decisiontree}
 \title{Decision tree
-This function trains a decision on the given training dataset and uses it to predict classification for test dataset. The resulting accuracy, sensitivity and specificity are returned, as well as a tree summary.}
+Trains a decision on the given training dataset and uses it to predict classification for test dataset. The resulting accuracy, sensitivity and specificity are returned, as well as a tree summary.}
 \usage{
 decisiontree(data_train, data_test, includeplot = FALSE, showtree = F)
 }
@@ -21,10 +21,20 @@ List containing performance summary, accessed using training (training accuracy)
 }
 \description{
 Decision tree
-This function trains a decision on the given training dataset and uses it to predict classification for test dataset. The resulting accuracy, sensitivity and specificity are returned, as well as a tree summary.
+Trains a decision on the given training dataset and uses it to predict classification for test dataset. The resulting accuracy, sensitivity and specificity are returned, as well as a tree summary.
 }
 \examples{
-"decisiontree(data_train,data_test)"
+data_train = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,0,0,1,1)),
+      A=c(1,1,1,0,0,0,1,1,1,0),
+      B=c(0,1,1,0,1,1,0,1,1,0),
+      C=c(0,0,1,0,0,1,0,0,1,0))
+data_test = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,1,0)),
+      A=c(0,0,0,1,0,0,0,1),
+      B=c(1,1,1,0,0,1,1,1),
+      C=c(0,0,1,1,0,0,1,1))
+decisiontree(data_train,data_test)
 }
 \keyword{classification}
 \keyword{decision}

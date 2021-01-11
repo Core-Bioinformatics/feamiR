@@ -1,6 +1,7 @@
 Package: feamiR
-Title: feamiR: Classification and feature selection for microRNA messengerRNA interactions
-Version: 0.0.0.9000
+Type: Package
+Title: Classification and Feature Selection for micro RNA messenger RNA Interactions
+Version: 0.1.0
 Authors@R: 
     c(person(given = "Eleanor",
            family = "Williams",
@@ -11,29 +12,46 @@ Authors@R:
         role = c("aut"),
         email = "iim22@cam.ac.uk"))
 Maintainer: Eleanor Williams <ecw63@cam.ac.uk>
-Description: The feamiR package provides a pipeline taking as input a messenger RNA database (either fasta of 3'UTRs or by combining annotations and reference genome e.g. from Ensembl) and microRNA database (fasta e.g. from miRBase) and an interaction database (csv e.g. from miRTarBase). 
+Description: The feamiR package provides a pipeline taking as input a messenger RNA dataset (either FASTA file of 3'UTRs or by combining annotations and a reference genome e.g. from Ensembl (<https://www.ensembl.org/info/data/ftp/index.html>)), a microRNA dataset (FASTA e.g. from miRBase (<http://www.mirbase.org/>)) and an interaction dataset (CSV e.g. from miRTarBase (<http://mirtarbase.cuhk.edu.cn/php/index.php>)). 
         First statistical analysis is applied then Machine Learning classifiers (decision tree, random forest and support vector machine) and feature selection approaches based on these classifiers. 
         The feature selection approaches are a voting scheme on decision trees, a measure based on Gini index on random forests, forward feature selection and Genetic Algorithms on SVMs. 
         The pipeline also includes a novel approach based on embryonic Genetic Algorithms which combines the benefits of forward feature selection and Genetic Algorithms. 
-        All analysis, classifiers and feature selection approaches can be applied for only seed features of the microRNA (by default) or for full microRNA features and/or flanking features of the messengerRNA.
+        All analysis, classifiers and feature selection approaches can be applied for only seed features of the microRNA (by default) or for full micro RNA features and/or flanking features of the messenger RNA.
 Encoding: UTF-8
-Depends:  reticulate,
-          stringr,
+Depends: R (>= 3.1.2)
+Imports:  stringr,
           randomForest,
           rpart,
           rpart.plot,
           GA,
-          parallel,
-          doParallel,
-          RColorBrewer,
           e1071,
           ggplot2,
-          tidyr,
-          plyr,
-          dplyr,
           magrittr,
-          tibble
-Imports: 
+          tibble,
+          dplyr,
+          reticulate
+Config/reticulate:
+  list(
+    packages = list(
+      list(package = "os"),
+      list(package = "argparse"),
+      list(package = "gzip"),
+      list(package = "pandas"),
+      list(package = "numpy"),
+      list(package = "math"),
+      list(package = "scipy.stats"),
+      list(package = "matplotlib.pyplot"),
+      list(package = "seaborn"),
+      list(package = "statistics"),
+      list(package = "logging"),
+      list(package = "Bio")
+    )
+  )
+Suggests: parallel,
+          doParallel
+SystemRequirements: Python (>=3.6)
+                    sreformat
+                    patman
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1.9000

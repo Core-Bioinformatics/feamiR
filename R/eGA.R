@@ -1,4 +1,4 @@
-hybridfeatureselection <- function(k,training,test,features,ongoing=c(),lengthofongoing=list(),goodnessoffeature,runssofar=0,model=svm_linear,mutprob=0.05,includePlot=FALSE,maxnumruns=50){
+hybridfeatureselection <- function(k,training,test,features,ongoing=c(),lengthofongoing=list(),goodnessoffeature,runssofar=0,model=feamiR::svm_linear,mutprob=0.05,includePlot=FALSE,maxnumruns=50){
 
   #pick new features to make up k in total
   kfeatures <-sample(features,k,replace=TRUE)
@@ -62,7 +62,6 @@ hybridfeatureselection <- function(k,training,test,features,ongoing=c(),lengthof
   acc_ba<-model_ba$training
 
   comparelist<-c(acc_bb,acc_ba,acc_ab,trainaccuracy)
-  utils::str(comparelist)
   if (trainaccuracy!=max(comparelist)){
     if (max(comparelist)==acc_ba){
       trainaccuracy<-acc_ba
@@ -140,8 +139,8 @@ hybridfeatureselection <- function(k,training,test,features,ongoing=c(),lengthof
     hybridfeatureselection(k_-l,training,test,featureslessongoing,ongoingfeatures,listoflengths,goodnessoffeature,runssofar,model=model,mutprob=mutprob,includePlot=includePlot,maxnumruns=maxnumruns)}
 }
 
-#' Embryonic Genetic Algorithm
-#' This function is based on Embryonic Genetic Algorithms. It performs feature selection by maintaining an ongoing set of 'good' set of features which are improved run by run. It outputs training and test accuracy, sensitivity and specificity and a list of <=k features.
+#' Embryonic Genetic Algorithm.
+#' Feature selection based on Embryonic Genetic Algorithms. It performs feature selection by maintaining an ongoing set of 'good' set of features which are improved run by run. It outputs training and test accuracy, sensitivity and specificity and a list of <=k features.
 #' @param k Maximum number of features in the output feature set (default:30)
 #' @param data_train Training set: dataframe containing classification column and all other columns features. This is the dataset on which the decision tree model is trained.
 #' @param data_test Test set: dataframe containing classification column and all other columns features. This is the dataset on which the decision tree model in tested.
@@ -155,13 +154,33 @@ hybridfeatureselection <- function(k,training,test,features,ongoing=c(),lengthof
 #' @keywords genetic
 #' @export
 #' @examples
-#' "eGA(30,data_train,data_test,maxnumruns=100)"
+#' data_train = data.frame(
+#'       classification=as.factor(c(1,1,0,0,1,1,0,0,1,1)),
+#'       A=c(1,1,1,0,0,0,1,1,1,0),
+#'       B=c(0,1,1,0,1,1,0,1,1,0),
+#'       C=c(0,0,1,0,0,1,0,0,1,0),
+#'       D=c(0,1,1,0,0,0,1,0,0,0),
+#'       E=c(1,0,1,0,0,1,0,1,1,0))
+#' data_test = data.frame(
+#'       classification=as.factor(c(1,1,0,0,1,1,1,0)),
+#'       A=c(0,0,0,1,0,0,0,1),
+#'       B=c(1,1,1,0,0,1,1,1),
+#'       C=c(0,0,1,1,0,0,1,1),
+#'       D=c(0,0,1,1,0,1,0,1),
+#'       E=c(0,0,1,0,1,0,1,1))
+#' data = read.csv(paste(system.file('samples/subsamples', package = "feamiR"),'/sample0.csv',sep=''))
+#' data = rbind(head(data,50),tail(data,50))
+#' data$classification = as.factor(data$classification)
+#' ind <- sample(2,nrow(data),replace=TRUE,prob=c(0.8,0.2))
+#' data_train <- data[ind==1,]
+#' data_test <- data[ind==2,]
+#' eGA(k=7,data_train,data_test,maxnumruns=3)
 eGA <- function(k=30,data_train,data_test,mutprob=0.05,includePlot=FALSE,maxnumruns=50){
+  listoffeatures <- colnames(data_train)[colnames(data_train)!='classification']
   goodnessoffeature<-data.frame(matrix(nrow = 1, ncol = length(listoffeatures)))
   for (i in (1:length(listoffeatures))){
     goodnessoffeature[1,i]<-0
   }
   colnames(goodnessoffeature)<-listoffeatures
-  listoffeatures <- colnames(subset(data_train, select = -c(classification)))
-  return(hybridfeatureselection(k,data_train,data_test,listoffeatures,c(),list(),goodnessoffeature,0,model=svm,mutprob=mutprob,includePlot=includePlot,maxnumruns=maxnumruns))
+  return(hybridfeatureselection(k=k,training=data_train,test=data_test,listoffeatures,c(),list(),goodnessoffeature,0,model=feamiR::svmlinear,mutprob=mutprob,includePlot=includePlot,maxnumruns=maxnumruns))
 }

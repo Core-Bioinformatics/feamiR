@@ -23,8 +23,8 @@
 #'
 #' A prefix for all output files can be supplied using the o parameter.
 #'
-#' PLEASE NOTE: To use this function Python (>=3.4) must be installed on your system and the path specified. The following libraries must also be installed on the Python version you specify: os, Bio, gtfparse, pandas, numpy, math, scipy.stats, matplotlib.pyplot, seaborn as sns, statistics, logging.
-#' 
+#' PLEASE NOTE: To use this function Python (>=3.6) must be installed on your system and the path specified. The following libraries must also be installed on the Python version you specify: os, Bio, gtfparse, pandas, numpy, math, scipy.stats, matplotlib.pyplot, seaborn as sns, statistics, logging.
+#'
 #' @section ML and feature selection functions:
 #' Using subsamples created by the preparedataset function, feamiR contains several function for creating miRNA-mRNA classifiers and selecting features which contribute most strongly to the classifiers.
 #'

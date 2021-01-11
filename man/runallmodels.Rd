@@ -2,15 +2,16 @@
 % Please edit documentation in R/runallmodels.R
 \name{runallmodels}
 \alias{runallmodels}
-\title{Run all models
-This function trains and tests Decision Tree, Random Forest and SVM models on 100 subsamples and provides a summary of the results, to select the best model. The number of trees and kernel chosen by select_svm_kernel and select_rf_numtrees should be used for SVM and Random Forest respectively. We can use this function to inform feature selection, using a Decision Tree voting scheme and a Random Forest measure based on the Gini index.}
+\title{Run all models.
+Trains and tests Decision Tree, Random Forest and SVM models on 100 subsamples and provides a summary of the results, to select the best model. The number of trees and kernel chosen by select_svm_kernel and select_rf_numtrees should be used for SVM and Random Forest respectively. We can use this function to inform feature selection, using a Decision Tree voting scheme and a Random Forest measure based on the Gini index.}
 \usage{
 runallmodels(
   num_trees = 20,
   kernel = "linear",
   degree = 3,
   poly = 0,
-  file_path = file_path
+  file_path = file_path,
+  num_runs = 100
 )
 }
 \arguments{
@@ -22,17 +23,24 @@ runallmodels(
 
 \item{poly}{1 if polynomial kernel is used, 0 if linear, radial or sigmoid.}
 
-\item{file_path}{Where the 100 subsample files are found (e.g. if sample 10 is at 'subsamples/sample10.csv' then file_path should be 'subsamples/sample')}
+\item{file_path}{Where the <=num_runs subsample files are found (e.g. if sample 10 is at 'subsamples/sample10.csv' then file_path should be 'subsamples/sample')}
+
+\item{num_runs}{Number of subsamples to loop over (default: 100)}
 }
 \value{
 The function will output a data.frame of the achieved test and training accuracy, sensitivity and specificity for each model on each subsample. Summary boxplots showing accuracy, sensitivity and specificity for each model will be produced. The function will also output dtreevote containing the features used in the decision trees for each subsample and the level of the tree at which they appear. Finally, the function outputs ongoingginis which contains the Gini index for each feature in the Random Forest for each subsample. The first column of dtreevote contains the number of runs for which each feature was used which can be used for feature selection. The first column of ongoingginis contains the cumulative Gini index for each feature across the 100 runs which can be used for feature selection.
 }
 \description{
-Run all models
-This function trains and tests Decision Tree, Random Forest and SVM models on 100 subsamples and provides a summary of the results, to select the best model. The number of trees and kernel chosen by select_svm_kernel and select_rf_numtrees should be used for SVM and Random Forest respectively. We can use this function to inform feature selection, using a Decision Tree voting scheme and a Random Forest measure based on the Gini index.
+Run all models.
+Trains and tests Decision Tree, Random Forest and SVM models on 100 subsamples and provides a summary of the results, to select the best model. The number of trees and kernel chosen by select_svm_kernel and select_rf_numtrees should be used for SVM and Random Forest respectively. We can use this function to inform feature selection, using a Decision Tree voting scheme and a Random Forest measure based on the Gini index.
 }
 \examples{
-"runallmodels(num_trees=50,kernel='radial',degree=3,poly=1,file_path='/subsamples/sample')"
+runallmodels(
+  num_runs=5,
+  num_trees=5,
+  kernel='linear',
+  poly=0,
+  file_path=paste(system.file('samples/subsamples', package = "feamiR"),'/sample',sep=''))
 }
 \keyword{classification}
 \keyword{decision}

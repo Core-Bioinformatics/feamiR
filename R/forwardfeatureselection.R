@@ -10,7 +10,7 @@ takefeaturecolumns<-function(sam,feat){
 
 #Selects feature which maximises accuracy combined with ongoing features
 nextbestfeature<-function(model,trainingsam,testsam,featuresleft,ongoingfeatures){
-  training<-takefeaturecolumns(training,union(featuresleft,ongoingfeatures))
+  training<-takefeaturecolumns(trainingsam,union(featuresleft,ongoingfeatures))
   test<-takefeaturecolumns(testsam,union(featuresleft,ongoingfeatures))
   maxaccuracy<-0
   maxfeat<-utils::head(featuresleft,1)
@@ -49,9 +49,8 @@ beforeandafter<-function(vect,centre,places,threshold){
 }
 
 
-#' Forward Feature Selection
-#'
-#' This function performs forward feature selection on the given list of features, placing them in order of discriminative power using a given model on the given dataset up to the accuracy plateau.
+#' Forward Feature Selection.
+#' Performs forward feature selection on the given list of features, placing them in order of discriminative power using a given model on the given dataset up to the accuracy plateau.
 #' @param model The ML models used to classify the data, typically SVM with a given kernel
 #' @param training Training dataset as a data.frame with classification column and column for each feature.
 #' @param test Test dataset with matching columns to training.
@@ -62,16 +61,30 @@ beforeandafter<-function(vect,centre,places,threshold){
 #' @keywords feature selection
 #' @export
 #' @examples
-#' "listoffeatures = subset(colnames(data_train),select=-c(classification))"
-#' "forwardfeatureselection(linear_svm,data_train,data_test,listoffeatures)"
-forwardfeatureselection <-function(model,training,test,featurelist,includePlot=FALSE){
+#' data_train = data.frame(
+#'       classification=as.factor(c(1,1,0,0,1,1,0,0,1,1)),
+#'       A=c(1,1,1,0,0,0,1,1,1,0),
+#'       B=c(0,1,1,0,1,1,0,1,1,0),
+#'       C=c(0,0,1,0,0,1,0,0,1,0),
+#'       D=c(0,1,1,0,0,0,1,0,0,0),
+#'       E=c(1,0,1,0,0,1,0,1,1,0))
+#' data_test = data.frame(
+#'       classification=as.factor(c(1,1,0,0,1,1,1,0)),
+#'       A=c(0,0,0,1,0,0,0,1),
+#'       B=c(1,1,1,0,0,1,1,1),
+#'       C=c(0,0,1,1,0,0,1,1),
+#'       D=c(0,0,1,1,0,1,0,1),
+#'       E=c(0,0,1,0,1,0,1,1))
+#' listoffeatures = colnames(data_train)[colnames(data_train)!='classification']
+#' forwardfeatureselection(feamiR::svmlinear,data_train,data_test,listoffeatures)
+forwardfeatureselection <-function(model=feamiR::svmlinear,training,test,featurelist,includePlot=FALSE){
   ongoing<-c()
   featureaccuracy<-data.frame(matrix(nrow=length(featurelist), ncol = 0))
   i<-1
   while (i<=length(featurelist)){
     b<-nextbestfeature(model,training,test,featurelist[!featurelist %in% ongoing],ongoing)
     ongoing<-c(ongoing,b$feature)
-    featureaccuracy[i,'training_accuracy']<-0
+    featureaccuracy[i,'training_accuracy']<-b$training_accuracy
     featureaccuracy[i,'test_accuracy']<-b$test_accuracy
     featureaccuracy[i,'accuracy']<-b$training_accuracy
     featureaccuracy[i,'number of features']<-i
@@ -83,7 +96,11 @@ forwardfeatureselection <-function(model,training,test,featurelist,includePlot=F
   }
   x<-featureaccuracy$'number of features'
   y<-featureaccuracy$accuracy
-  loess30<-stats::loess(y ~ x,degree=1,span=0.2)
+  if (length(x)<=5){
+    loess30 = suppressWarnings(stats::loess(y ~ x, degree = 1, span = 0.5))
+  }
+  else{
+  loess30<-suppressWarnings(stats::loess(y ~ x,degree=1,span=0.2))}
   y1 <- stats::predict(loess30,newdata=x,se=FALSE)
   flag<-TRUE
   i<-3
@@ -102,11 +119,11 @@ forwardfeatureselection <-function(model,training,test,featurelist,includePlot=F
   }
 
   y2_<-featureaccuracy$test_accuracy
-  loess30_2<-stats::loess(y2_ ~ x,degree=1,span=0.2)
+  loess30_2<-suppressWarnings(stats::loess(y2_ ~ x,degree=1,span=0.2))
   y2 <- stats::predict(loess30_2,newdata=x,se=FALSE)
 
   y4_<-featureaccuracy$training_accuracy
-  loess30_4<-stats::loess(y4_ ~ x,degree=1,span=0.2)
+  loess30_4<-suppressWarnings(stats::loess(y4_ ~ x,degree=1,span=0.2))
   y4 <- stats::predict(loess30_4,newdata=x,se=FALSE)
 
   if (includePlot == TRUE){
@@ -114,7 +131,6 @@ forwardfeatureselection <-function(model,training,test,featurelist,includePlot=F
     graphics::points(utils::head(x,numfeat),utils::head(y2_,numfeat),col='green')
     graphics::lines(utils::head(x,numfeat),utils::head(y1,numfeat),col='red')
     graphics::lines(utils::head(x,numfeat),utils::head(y2,numfeat),col='green')}
-
-  return_list <- list("feature_list" = utils::head(ongoing,numfeat), "accuracy" = y1[numfeat],"testacc"=featureaccuracy$test_accuracy[numfeat],"trainacc"=featureaccuracy$train_accuracy[numfeat],"trainsens"=featureaccuracy$train_sensitivity[numfeat],"trainspec"=featureaccuracy$train_specificity[numfeat],"testsens"=featureaccuracy$test_sensitivity[numfeat],"testspec"=featureaccuracy$test_specificity[numfeat])
+  return_list <- list("feature_list" = utils::head(ongoing,numfeat), "accuracy" = y1[numfeat],"testacc"=featureaccuracy$test_accuracy[numfeat],"trainacc"=featureaccuracy$training_accuracy[numfeat],"trainsens"=featureaccuracy$train_sensitivity[numfeat],"trainspec"=featureaccuracy$train_specificity[numfeat],"testsens"=featureaccuracy$test_sensitivity[numfeat],"testspec"=featureaccuracy$test_specificity[numfeat])
   return(return_list)
 }

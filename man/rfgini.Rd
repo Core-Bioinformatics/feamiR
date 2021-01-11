@@ -2,8 +2,8 @@
 % Please edit documentation in R/runallmodels.R
 \name{rfgini}
 \alias{rfgini}
-\title{Random Forest cumulative MeanDecreaseGini feature selection
-This function implements a feature selection approach based on cumulative MeanDecreaseGini using Random Forests trained on multiple subsamples.}
+\title{Random Forest cumulative MeanDecreaseGini feature selection.
+Implements a feature selection approach based on cumulative MeanDecreaseGini using Random Forests trained on multiple subsamples.}
 \usage{
 rfgini(num_runs = 100, num_trees = 30, file_path = file_path)
 }
@@ -18,11 +18,14 @@ rfgini(num_runs = 100, num_trees = 30, file_path = file_path)
 The function will output a data.frame with cumulative mean decrease in Gini for each feature in the first columns (each row is a feature) and the rest of the column containing mean decrease in Gini for each of the num_runs runs.
 }
 \description{
-Random Forest cumulative MeanDecreaseGini feature selection
-This function implements a feature selection approach based on cumulative MeanDecreaseGini using Random Forests trained on multiple subsamples.
+Random Forest cumulative MeanDecreaseGini feature selection.
+Implements a feature selection approach based on cumulative MeanDecreaseGini using Random Forests trained on multiple subsamples.
 }
 \examples{
-"rfgini(num_runs=100,num_trees=30,file_path='/subsamples/sample')"
+rfgini(
+  num_runs=5,
+  num_trees=30,
+  file_path=paste(system.file('samples/subsamples',package = "feamiR"),'/sample',sep=''))
 }
 \keyword{Gini}
 \keyword{feature}

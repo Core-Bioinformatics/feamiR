@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import statistics
 import logging
+import sys
 
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -190,14 +191,14 @@ def subsample_neg(positivity,negativity,threshold,j):
         pos1A,pos1G,pos1C,pos1U = numberateachposition(negativity,pos)
         neglist = outof100_1nt(pos1A,pos1G,pos1C,pos1U)
         f1,samplepvalue1 = ss.chisquare(f_obs=samplelist,f_exp=neglist)
-
         if (samplepvalue1 < threshold):
             representative=False
             j=j+1
         else:
             representative=True
+            j=j+1
         if representative==False:
-            return False   
+            return (False,'')
     if representative==False:
         return (False,'')
     else:
@@ -205,7 +206,6 @@ def subsample_neg(positivity,negativity,threshold,j):
 
 def subsample(positive,negative,output_prefix,num_runs):
     positivity=positive[['miRNA_id','gene_id','seed_sequence']].drop_duplicates()
-
     j=1
     for k in range(num_runs):
         representative=False
@@ -214,6 +214,7 @@ def subsample(positive,negative,output_prefix,num_runs):
             if a==False:
                 j=j+1
             else:
+                logging.info('true')
                 dummies_pos = pd.DataFrame()
                 mir_single = positivity['seed_sequence'].apply(lambda x: pd.Series(list(x)))
                 for i in mir_single.columns:
@@ -265,8 +266,14 @@ def main():
     parser.add_argument('-minvalidationentries', metavar='<minvalidationentries>', dest="minvalidationentries", help="Minimum number of entries for a validation category to be considered separately (default: 40).")  
     parser.add_argument('-num_runs', metavar='<num_runs>', dest="num_runs", help="Number of subsamples to create, default: 100")  
 
-
     args = parser.parse_args()
+    if float(sys.version[:3])<3.6:
+      logging.info('Using Python version '+sys.version+' . Need Python >= 3.6.')
+      return 1
+    if (not(args.interactions or (args.positiveset and args.negativeset) or args.patmanoutput)):
+      logging.info('Invalid input. Please supply either miRNA and mRNA files with interaction dataset, or labelled positive and negative datasets, or patman output.')
+      return 1
+      
     if args.output_prefix:
         output_prefix = args.output_prefix
     else:
@@ -390,7 +397,7 @@ def main():
                     if i == '1':
                         with open(prime_output_file,'w') as primefile:
                             for i in range(len(mergified)):
-                                print(">" + mergified.iloc[i]['gene_name'],file=primefile)
+                                print((">" + mergified.iloc[i]['gene_name']),file=primefile)
                                 print(mergified.iloc[i]['final_sequence'], file=primefile)
                     else:
                         with open(prime_output_file,'a') as primefile:
@@ -564,6 +571,8 @@ def main():
             negativeset_seed = negativeset_seed.drop(columns=['Support Type'])
         except:
             pass
+        positiveset_seed = positiveset_seed[positiveset_seed['negative_flanking']!='N']
+        negativeset_seed = negativeset_seed[negativeset_seed['negative_flanking']!='N']
         positiveset_seed.to_csv(output_prefix+'seed_positive.csv')
         negativeset_seed.to_csv(output_prefix+'seed_negative.csv')
         logging.info('PaTMaN output processed and split into positive and negative datasets, save at '+output_prefix+'seed_positive.csv and '+output_prefix+'seed_negative.csv')
@@ -632,13 +641,14 @@ def main():
                 negativeset_seed = pd.read_csv(args.negativeset)
             except:
                 logging.info('Failed to open positive and/or negative input files. Please check format.')
-        if (positiveset_seed.columns).contains('Experiments'):
-            if (positiveset_seed.columns).contains('Support Type'):
+                return(1)
+        if 'Experiments' in list(positiveset_seed.columns):
+            if 'Support Type' in list(positiveset_seed.columns):
                 exp_type = 'support and type'
             else:
                 exp_type = 'type'
         else:
-            if (positiveset_seed.columns).contains('Support Type'):
+            if 'Support Type' in list(positiveset_seed.columns):
                 exp_type = 'support'
             else:
                 exp_type = 'short'

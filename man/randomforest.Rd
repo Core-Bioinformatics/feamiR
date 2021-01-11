@@ -2,8 +2,8 @@
 % Please edit documentation in R/classification.R
 \name{randomforest}
 \alias{randomforest}
-\title{Random forest
-This function trains a random forest on the training dataset and uses it to predict the classification of the test dataset. The resulting accuracy, sensitivity and specificity are returned, as well as a summary of the importance of features in the dataset.}
+\title{Random Forest.
+Trains a random forest on the training dataset and uses it to predict the classification of the test dataset. The resulting accuracy, sensitivity and specificity are returned, as well as a summary of the importance of features in the dataset.}
 \usage{
 randomforest(data_train, data_test, numoftrees = 10, includeplot = FALSE)
 }
@@ -20,11 +20,21 @@ randomforest(data_train, data_test, numoftrees = 10, includeplot = FALSE)
 List containing performance percentages, accessed using training (training accuracy), test (test accuracy), trainsensitivity, testsensitivity, trainspecificity, testspecificity. Also accessed using importance is the vector of Mean Decrease in Gini Index. This can be used to find the features which contribute most to classification.
 }
 \description{
-Random forest
-This function trains a random forest on the training dataset and uses it to predict the classification of the test dataset. The resulting accuracy, sensitivity and specificity are returned, as well as a summary of the importance of features in the dataset.
+Random Forest.
+Trains a random forest on the training dataset and uses it to predict the classification of the test dataset. The resulting accuracy, sensitivity and specificity are returned, as well as a summary of the importance of features in the dataset.
 }
 \examples{
-"randomforest(data_train,data_test,numoftrees=50)"
+data_train = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,0,0,1,1)),
+      A=c(1,1,1,0,0,0,1,1,1,0),
+      B=c(0,1,1,0,1,1,0,1,1,0),
+      C=c(0,0,1,0,0,1,0,0,1,0))
+data_test = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,1,0)),
+      A=c(0,0,0,1,0,0,0,1),
+      B=c(1,1,1,0,0,1,1,1),
+      C=c(0,0,1,1,0,0,1,1))
+randomforest(data_train,data_test,numoftrees=5)
 }
 \keyword{classification}
 \keyword{rf}

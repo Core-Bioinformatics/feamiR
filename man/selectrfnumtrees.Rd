@@ -2,8 +2,8 @@
 % Please edit documentation in R/hyperparameters.R
 \name{selectrfnumtrees}
 \alias{selectrfnumtrees}
-\title{Tuning number of trees hyperparameter
-This function trains random forests with a range of number of trees so the optimal number can be identified (using the resulting plot) with cross validation}
+\title{Tuning number of trees hyperparameter.
+Trains random forests with a range of number of trees so the optimal number can be identified (using the resulting plot) with cross validation}
 \usage{
 selectrfnumtrees(
   data,
@@ -28,11 +28,15 @@ selectrfnumtrees(
 Dataframe containing test and training accuracy, sensitivity and specificity
 }
 \description{
-Tuning number of trees hyperparameter
-This function trains random forests with a range of number of trees so the optimal number can be identified (using the resulting plot) with cross validation
+Tuning number of trees hyperparameter.
+Trains random forests with a range of number of trees so the optimal number can be identified (using the resulting plot) with cross validation
 }
 \examples{
-"selectrfnumtrees(data,100,'RF boxplots')"
+data = read.csv(paste(system.file('samples/subsamples', package = "feamiR"),'/sample0.csv',sep=''))
+data = rbind(head(data,50),tail(data,50))
+data$classification = as.factor(data$classification)
+data = data[,2:ncol(data)]
+selectrfnumtrees(data,5,'RF boxplots')
 }
 \keyword{forest}
 \keyword{hyperparameter}

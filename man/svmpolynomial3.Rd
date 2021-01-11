@@ -3,7 +3,7 @@
 \name{svmpolynomial3}
 \alias{svmpolynomial3}
 \title{Polynomial degree 3 SVM
-This function implements a polynomial degree 3 SVM using the general svm function (for ease of use in feature selection)}
+Implements a polynomial degree 3 SVM using the general svm function (for ease of use in feature selection)}
 \usage{
 svmpolynomial3(data_train, data_test, includeplot = FALSE)
 }
@@ -19,10 +19,20 @@ List containing performance percentages, accessed using training (training accur
 }
 \description{
 Polynomial degree 3 SVM
-This function implements a polynomial degree 3 SVM using the general svm function (for ease of use in feature selection)
+Implements a polynomial degree 3 SVM using the general svm function (for ease of use in feature selection)
 }
 \examples{
-"svmpolynomial3(data_train,data_test)"
+data_train = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,0,0,1,1)),
+      A=c(1,1,1,0,0,0,1,1,1,0),
+      B=c(0,1,1,0,1,1,0,1,1,0),
+      C=c(0,0,1,0,0,1,0,0,1,0))
+data_test = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,1,0)),
+      A=c(0,0,0,1,0,0,0,1),
+      B=c(1,1,1,0,0,1,1,1),
+      C=c(0,0,1,1,0,0,1,1))
+svmpolynomial3(data_train,data_test)
 }
 \keyword{classification}
 \keyword{svm}

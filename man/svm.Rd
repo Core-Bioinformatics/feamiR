@@ -33,9 +33,19 @@ List containing performance percentages, accessed using training (training accur
 SVM
 }
 \examples{
-"svm(data_train,data_test,kernel='radial',degree=3)"
-"svm(data_train,data_test,kernel='sigmoid')"
-"svm(data_train,data_test,kernel='poly',degree=4,poly=1)"
+data_train = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,0,0,1,1)),
+      A=c(1,1,1,0,0,0,1,1,1,0),
+      B=c(0,1,1,0,1,1,0,1,1,0),
+      C=c(0,0,1,0,0,1,0,0,1,0))
+data_test = data.frame(
+      classification=as.factor(c(1,1,0,0,1,1,1,0)),
+      A=c(0,0,0,1,0,0,0,1),
+      B=c(1,1,1,0,0,1,1,1),
+      C=c(0,0,1,1,0,0,1,1))
+svm(data_train,data_test,kernel='radial',degree=3)
+svm(data_train,data_test,kernel='sigmoid')
+svm(data_train,data_test,kernel='poly',degree=4,poly=1)
 }
 \keyword{classification}
 \keyword{svm}

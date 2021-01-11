@@ -1,13 +1,12 @@
 #' Dataset preparation
+#' This step performs all preparation necessary to perform feamiR analysis, taking a set of mRNAs, a set of miRNAs and an interaction dataset and creating corresponding positive and negative datasets for ML modelling.
 #'
-#' This step performs all preparation necessary to perform feamiR analysis, taking a set of mRNAs, a set of miRNAs and an interaction dataset and creating corresponding positive and negative datasets for ML modelling. 
 #' PLEASE NOTE:
-#' This analysis is run in Python so python must be installed and location specified if not on PATH. 
-#' Both sreformat and PaTMaN must also be installed and path specified if not on PATH. 
+#' This analysis is run in Python so python must be installed and location specified if not on PATH.
+#' Both sreformat and PaTMaN must also be installed and path specified if not on PATH.
 #' Python >= 3.6 is required to use the neccesary packages.
 #' The Python component required the following libraries: os, Bio, gtfparse, pandas, numpy, math, scipy.stats, matplotlib.pyplot, seaborn as sns, statistics, logging. Please ensure these are installed for the verison of Python you supply.
-#' 
-#' 
+#'
 #' The function saves various files (using specified output_prefix) and if you wish to start preparation using one of these pre-output files then these can be specified and preparation will skip to that point (this should only be done with files output by the function).
 #' @param mRNA_3pUTR Fasta file of only 3'UTRs, with gene name as name attribute (e.g. Serpinb8)
 #' @param miRNA_full Fasta file of full mature miRNA hairpins, with miRNA ID as name attribute (e.g. hsa-miR-576-3p)
@@ -28,12 +27,18 @@
 #' @param minvalidationentries Minimum number of entries for a validation category to be considered separately in statistical analysis (default: 40)
 #' @param patmanoutput TXT file containing patman output (saved as output_prefix + patman_seed.txt). If supplied, analysis begins at patman output processing stage.
 #' @param num_runs Number of subsamples to create (default: 100)
+#' @param check_python Whether the Python version should be checked (default: T)
 #' @return CSV containing full positive and negative sets. Folder statistical_analysis of heatmaps showing significance of various features under Fisher exact and Chi-squared tests. Seed analysis will always be run, full miRNA and flanking analysis if the respective parameters are set to 1. Folder subsamples containing CSVs for 100 subsamples with positive and negative samples equal for use in classifiers and feature selection.
 #' @export
 #' @examples
-#' "preparedataset(pythonversion='python3',miRNA_full='miRNA_full_mmu.fasta',annotations='Mus_musculus.GRCm38.100.chr.gtf',fullchromosomes='Mus_musculus.GRCm38.dna.toplevel.fa',interactions='mmu_MTI.csv',chr=20,o='feamiR_ignore')"
-#' "preparedataset(pythonversion='python3',interactions='mmu_MTI.csv',positiveset='feamiR_seed_positive.csv',negativeset='feamiR_seed_negative.csv',o='feamiR_')"
-preparedataset <- function(pythonversion='python',mRNA_3pUTR='',miRNA_full='',interactions='',annotations='',fullchromosomes='',seed=1,nonseed_miRNA=0,flankingmRNA=0,UTR_output='',chr='',o='feamiR_',positiveset='',negativeset='',sreformatpath='sreformat',patmanpath='patman',patmanoutput='',minvalidationentries=40,num_runs=100){
+#' preparedataset(
+#'    pythonversion=Sys.which('python'),
+#'    positiveset = system.file('samples','test_seed_positive.csv',package='feamiR'),
+#'    negativeset=system.file('samples','test_seed_negative.csv',package='feamiR'),
+#'    o='examples_',
+#'    num_runs=0,
+#'    check_python='F')
+preparedataset <- function(pythonversion='python',mRNA_3pUTR='',miRNA_full='',interactions='',annotations='',fullchromosomes='',seed=1,nonseed_miRNA=0,flankingmRNA=0,UTR_output='',chr='',o='feamiR_',positiveset='',negativeset='',sreformatpath='sreformat',patmanpath='patman',patmanoutput='',minvalidationentries=40,num_runs=100,check_python=T){
   if (!missing(mRNA_3pUTR)){mRNA_3pUTR = paste('-mRNA_3pUTR ',mRNA_3pUTR,sep='')}
   if (!missing(miRNA_full)){miRNA_full = paste('-miRNA_full ',miRNA_full,sep='')}
   if (!missing(interactions)){interactions = paste('-interactions ',interactions,sep='')}
@@ -52,7 +57,14 @@ preparedataset <- function(pythonversion='python',mRNA_3pUTR='',miRNA_full='',in
   minvalidationentries = paste('-minvalidationentries ',minvalidationentries,sep='')
   num_runs = paste('-num_runs ',num_runs,sep='')
   if (!missing(patmanoutput)){patmanoutput = paste('-patmanoutput ',patmanoutput,sep='')}
-  print(paste(pythonversion,'-W ignore ',system.file('python', "feamiR_prepare_dataset.py", package = "feamiR"),' ',mRNA_3pUTR,miRNA_full,interactions,annotations,fullchromosomes,seed,nonseed_miRNA,flankingmRNA,UTR_output,chr,o,positiveset,negativeset,sreformatpath,patmanpath,patmanoutput,minvalidationentries,num_runs))
+  if (check_python==T){
+  reticulate::use_python(pythonversion)
+  version <- reticulate::py_eval("sys.version")
+  if (as.numeric(substr(version,start=1,stop=3)) < 3.2){
+    print(paste('Using Python version ',version,'. Need Python >=3.2 so terminating.'))
+    return('')
+  }
+  }
   path=paste(pythonversion,'-W ignore ',system.file('python', "feamiR_prepare_dataset.py", package = "feamiR"),' ',mRNA_3pUTR,miRNA_full,interactions,annotations,fullchromosomes,seed,nonseed_miRNA,flankingmRNA,UTR_output,chr,o,positiveset,negativeset,sreformatpath,patmanpath,patmanoutput,minvalidationentries,num_runs)
   system(stringr::str_squish(path))
 }
