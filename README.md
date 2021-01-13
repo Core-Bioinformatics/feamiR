@@ -1,15 +1,18 @@
-# feamiR: Classification and feature selection for microRNA messengerRNA interactions #
+# feamiR: Classification and feature selection for microRNA/mRNA interactions #
 
-The feamiR package provides two categories of functions:
-Dataset preparation functions and analysis functions
+**microRNAs** play a key role in RNA interference, the sequence-driven targeting of mRNAs that regulates their translation to proteins, through translation inhibition or the degradation of the mRNA. Around ~30% of animal genes may be tuned by microRNAs. The prediction of miRNA/mRNA interactions is hindered by the short length of the interaction (seed) region (~7-8nt). We collate several large datasets overviewing validated interactions and propose *fea*mi**R**, a novel pipeline comprising optimised classification approaches (Decision Trees/Random Forests and an efficient feature selection based on embryonic Genetic Algorithms used in conjunction with Support Vector Machines) aimed at identifying discriminative nucleotide features, on the seed, compensatory and flanking regions, that increase the prediction accuracy for interactions.
+
+Common and specific combinations of features illustrate differences between reference organisms, validation techniques or tissue/cell localisation. feamiR revealed new key positions that drive the miRNA/mRNA interactions, leading to novel questions on the mode-of-action of miRNAs.
+
+
+The *fea*mi**R** package provides two categories of functions: [a] Dataset pre-processing functions and [b] analysis functions.
 
 ## Dataset preparation functions ##
 
-feamiR uses 1 preparation function called preparedataset.
-There are 2 options for the input mRNA dataset:
+The pre-processing function is called *preparedataset*. For generating the input mRNA (3'UTR) dataset two options are implemented: [1] one that takes as input a reference genome and an annotation file and [2] one that works directly with the 3' UTR sequences.
 
-1. Reference genome (fasta) and corresponding annotation file (gtf). From these files, the three prime UTR sequences will be extracted for alignment. These paths for these files could be for example a toplevel file and annotation file from Ensembl (e.g. Homo_sapiens.GRCh38.dna.toplevel.fa and Homo_sapiens.GRCh38.100.chr.gtf). Before using this form of input check consistent naming of chromosomes between the two files and that the IDs are consistent with the interactions file you intend to use (e.g. using gene names). These files should be specificed using the fullchromosomes and annotations parameters. If this type of data is supplied you must also specify the number of chromosomes for the species in question (e.g. 23 for Homo sapiens) using the chr parameter.
-2. Three prime UTR file (fasta). Again check consistent IDs with interactions file. This file should be specified using the mRNA_3pUTR parameter.
+1. The reference genome is expected in fasta format; the corresponding annotation file  is expected in gtf format. Using these inputs, the 3'UTR sequences are generated, using the genomic coordinates and used for the microRNA alignment e.g. for *H. sapiens* these files can be retreived from Ensembl  Homo_sapiens.GRCh38.dna.toplevel.fa and Homo_sapiens.GRCh38.100.chr.gtf. Before using this option for generating the 3' UTRs, check whether the naming of chromosomes is consistent between the two files and the IDs from the interactions file you intend to use (e.g. "chr1" is different from "1"); also the number of chromosomes should be specified using the chr parameter (e.g. 23 for *H sapiens*).
+2. The 3'UTR input is expected in fasta format; it can be specified suing the mRNA_3pUTR parameter. In a similar approach as for [1] the consistency of IDs across files should be checked. 
 
 The input miRNA file should be a fasta file containing mature miRNA sequences (e.g. from miRBase). Check the miRNA IDs are consistent with the interaction dataset. From the mature sequences, the seed sequences will be extracted and saved to a separate fasta file.
 
