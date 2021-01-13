@@ -1,4 +1,4 @@
-#' feamiR: Classification and feature selection for microRNA messengerRNA interactions
+#' feamiR: Classification and feature selection for microRNA/mRNA interactions
 #'
 #' The feamiR package provides two categories of functions:
 #' Dataset preparation functions and analysis functions
@@ -26,7 +26,7 @@
 #' PLEASE NOTE: To use this function Python (>=3.6) must be installed on your system and the path specified. The following libraries must also be installed on the Python version you specify: os, Bio, gtfparse, pandas, numpy, math, scipy.stats, matplotlib.pyplot, seaborn as sns, statistics, logging.
 #'
 #' @section ML and feature selection functions:
-#' Using subsamples created by the preparedataset function, feamiR contains several function for creating miRNA-mRNA classifiers and selecting features which contribute most strongly to the classifiers.
+#' Using subsamples created by the preparedataset function, feamiR contains several function for creating miRNA/mRNA classifiers and selecting features which contribute most strongly to the classifiers.
 #'
 #' The classifier functions are: decisiontree, randomforest and svm.
 #' To select hyperparameters for randomforest and svm, you should use selectsvmkernel and selectrfnumtrees. This functions will produce plots through cross validation from which an appropriate number of trees and kernel can be identified. You should try this on multiple subsamples to check your selection.

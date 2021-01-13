@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>feamiR: Classification and feature selection for microRNA messengerRNA interactions — feamiR • feamiR</title>
+<title>feamiR: Classification and feature selection for microRNA/mRNA interactions — feamiR • feamiR</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="feamiR: Classification and feature selection for microRNA messengerRNA interactions — feamiR" />
+<meta property="og:title" content="feamiR: Classification and feature selection for microRNA/mRNA interactions — feamiR" />
 <meta property="og:description" content="The feamiR package provides two categories of functions:
 Dataset preparation functions and analysis functions" />
 
@@ -104,7 +104,7 @@ Dataset preparation functions and analysis functions" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>feamiR: Classification and feature selection for microRNA messengerRNA interactions</h1>
+    <h1>feamiR: Classification and feature selection for microRNA/mRNA interactions</h1>
     
     <div class="hidden name"><code>feamiR.Rd</code></div>
     </div>
@@ -138,7 +138,7 @@ There are 2 options for the input mRNA dataset:</p><ol>
 
     
 
-<p>Using subsamples created by the preparedataset function, feamiR contains several function for creating miRNA-mRNA classifiers and selecting features which contribute most strongly to the classifiers.</p>
+<p>Using subsamples created by the preparedataset function, feamiR contains several function for creating miRNA/mRNA classifiers and selecting features which contribute most strongly to the classifiers.</p>
 <p>The classifier functions are: decisiontree, randomforest and svm.
 To select hyperparameters for randomforest and svm, you should use selectsvmkernel and selectrfnumtrees. This functions will produce plots through cross validation from which an appropriate number of trees and kernel can be identified. You should try this on multiple subsamples to check your selection.</p>
 <p>Once these hyperparameters are identified, use runallmodels to create and analyse results from Decision Trees, Random Forests and SVMs on all 100 subsamples. The selected hyperparameters using selectsvmkernel and selectrfnumtrees should be input as parameters. The function will output a data.frame of the achieved test and training accuracy, sensitivity and specificity for each model on each subsample. Summary boxplots showing accuracy, sensitivity and specificity for each model will be produced. The function will also output dtreevote containing the features used in the decision trees for each subsample and the level of the tree at which they appear. Finally, the function outputs ongoingginis which contains the Gini index for each feature in the Random Forest for each subsample. The first column of dtreevote contains the number of runs for which each feature was used which can be used for feature selection. The first column of ongoingginis contains the cumulative Gini index for each feature across the 100 runs which can be used for feature selection.</p>
