@@ -60,9 +60,9 @@ sensfunc<-function(results){
 #'       C=c(0,0,1,1,0,0,1,1))
 #' decisiontree(data_train,data_test)
 
-decisiontree<-function(data_train,data_test,includeplot=FALSE,showtree=F){
+decisiontree<-function(data_train,data_test,includeplot=FALSE,showtree=FALSE){
   fit <- rpart::rpart(stats::as.formula("classification~."), data = data_train, method = 'class',minsplit=6)
-  if (showtree==T){graphics::plot(rpart.plot::rpart.plot(fit))}
+  if (showtree==TRUE){print(rpart.plot::prp(fit))}
 
   testdtree_y_pred <- stats::predict(fit,data_test, type = 'class')
   testdtree <- table(data_test[, 1], testdtree_y_pred)
@@ -70,6 +70,7 @@ decisiontree<-function(data_train,data_test,includeplot=FALSE,showtree=F){
 
   traindtree_y_pred = stats::predict(fit,data_train, type = 'class')
   traindtree <- table(data_train[, 1], traindtree_y_pred)
+  print(traindtree)
   traindtree_accuracy_Test <- sum(diag(traindtree)) / sum(traindtree)
 
   if (nlevels(testdtree_y_pred %>% factor(levels=c(0,1)))==1){
@@ -124,8 +125,8 @@ decisiontree<-function(data_train,data_test,includeplot=FALSE,showtree=F){
              ggplot2::ggtitle(label = title, subtitle = paste0("Accuracy = ", 100*round(testdtree_accuracy_Test,3),"%")) +
              xlab(xlab) +
              ylab(ylab) +
-             ggplot2::scale_color_manual(labels = c('No', 'Yes'),
-                                values = c('tomato','cornflowerblue')) +
+             ggplot2::scale_color_manual(labels = c('Yes', 'No'),
+                                values = c('cornflowerblue','tomato')) +
              ggplot2::geom_jitter() +
              ggplot2::theme_bw())
     }
@@ -221,8 +222,8 @@ randomforest<-function(data_train,data_test,numoftrees=10,includeplot=FALSE){
            ggplot2::ggtitle(label = title, subtitle = paste0("Accuracy = ", 100*round(testrf_accuracy_Test,3),"%")) +
            xlab(xlab) +
            ylab(ylab) +
-           ggplot2::scale_color_manual(labels = c('No', 'Yes'),
-                              values = c('tomato','cornflowerblue')) +
+           ggplot2::scale_color_manual(labels = c('Yes','No'),
+                              values = c('cornflowerblue','tomato')) +
            ggplot2::geom_jitter() +
            ggplot2::theme_bw())
   }
@@ -339,8 +340,8 @@ svm<-function(data_train,data_test,kernel='linear',degree=3,poly=0,includeplot=F
            ggplot2::ggtitle(label = title, subtitle = paste0("Accuracy = ", 100*round(svmaccuracy_Test,3),"%")) +
            xlab(xlab) +
            ylab(ylab) +
-           ggplot2::scale_color_manual(labels = c('No', 'Yes'),
-                              values = c('tomato','cornflowerblue')) +
+           ggplot2::scale_color_manual(labels = c('Yes', 'No'),
+                              values = c('cornflowerblue','tomato')) +
            ggplot2::geom_jitter() +
            ggplot2::theme_bw())
   }
