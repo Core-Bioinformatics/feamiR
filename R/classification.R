@@ -70,7 +70,6 @@ decisiontree<-function(data_train,data_test,includeplot=FALSE,showtree=FALSE){
 
   traindtree_y_pred = stats::predict(fit,data_train, type = 'class')
   traindtree <- table(data_train[, 1], traindtree_y_pred)
-  print(traindtree)
   traindtree_accuracy_Test <- sum(diag(traindtree)) / sum(traindtree)
 
   if (nlevels(testdtree_y_pred %>% factor(levels=c(0,1)))==1){
@@ -117,7 +116,7 @@ decisiontree<-function(data_train,data_test,includeplot=FALSE,showtree=FALSE){
                        y_pred  = testdtree_y_pred %>% factor(levels=c(0,1)),
                        Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
 
-      title = 'Performance on 10% unseen data - decision tree'
+      title = 'Performance on unseen data - decision tree'
       xlab  = 'Measured (Real class)'
       ylab  = 'Predicted (Class assigned by decisiontree)'
       graphics::plot(ggplot2::ggplot(results,ggplot2::aes(x = testdtree_y_pred, y = data_test$classification, colour = results$Correct)) +
@@ -214,7 +213,7 @@ randomforest<-function(data_train,data_test,numoftrees=10,includeplot=FALSE){
                      y_pred  = testrf_y_pred %>% factor(levels=c(0,1)),
                      Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
 
-    title = 'Performance on 10% unseen data - random forest'
+    title = 'Performance on unseen data - random forest'
     xlab  = 'Measured (Real class)'
     ylab  = 'Predicted (Class assigned by random forest)'
     graphics::plot(ggplot2::ggplot(results,ggplot2::aes(x = testrf_y_pred, y = data_test$classification, colour = results$Correct)) +
@@ -261,24 +260,24 @@ randomforest<-function(data_train,data_test,numoftrees=10,includeplot=FALSE){
 #' svm(data_train,data_test,kernel='poly',degree=4,poly=1)
 svm<-function(data_train,data_test,kernel='linear',degree=3,poly=0,includeplot=FALSE){
   if (poly==1){
-    classifier = e1071::svm(formula = stats::as.formula("classification~."),
+    classifier = e1071::svm(formula = classification ~ .,
                             data = data_train,
                             type = 'C-classification',
-                            kernel = kernel,degree=degree,scale=FALSE)
+                            kernel = kernel,degree=degree)
   }
   else if (kernel=='radial'){
-    classifier = e1071::svm(formula = stats::as.formula("classification~."),
+    classifier = e1071::svm(formula = classification ~ .,
                             data = data_train,
                             type = 'C-classification',
-                            kernel = 'radial',coef0=0, degree = degree,scale=FALSE)
+                            kernel = 'radial',coef0=0, degree = 3)
   }
   else {
-    classifier = e1071::svm(formula = stats::as.formula("classification~."),
+    classifier = e1071::svm(formula = classification ~ .,
                             data = data_train,
                             type = 'C-classification',
-                            kernel = kernel,scale=FALSE)
+                            kernel = kernel)
   }
-  svmy_pred_train = stats::predict(classifier, newdata = subset(data_train,select=(colnames(data_train)[colnames(data_train)!='classification'])))
+  svmy_pred_train = predict(classifier, newdata = subset(data_train,select=-c(classification)))
   svmcm_train = table(data_train[, 1], svmy_pred_train)
   svmaccuracy_Train <- sum(diag(svmcm_train)) / sum(svmcm_train)
   if (nlevels(svmy_pred_train %>% factor(levels=c(0,1)))==1){
@@ -332,7 +331,7 @@ svm<-function(data_train,data_test,kernel='linear',degree=3,poly=0,includeplot=F
                      y_pred  = svmy_pred %>% factor(levels=c(0,1)),
                      Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
 
-    title = 'Performance on 10% unseen data - SVM'
+    title = 'Performance on unseen data - SVM'
     xlab  = 'Measured (Real class)'
     ylab  = 'Predicted (Class assigned by SVM)'
     graphics::plot(ggplot2::ggplot(results,ggplot2::aes(x = svmy_pred, y = data_test$classification, colour = results$Correct)) +

@@ -3,8 +3,8 @@
 #' @param data Dataset: dataframe containing classification column and all other column features. Both the training and test datasets will be taken from this dataset.
 #' @param maxnum Maximum number of trees to be considered. All numbers between 1 and maxnum will be considered. Default: 100.
 #' @param title Title to be used for the resulting boxplot
-#' @param showplots T if plots should be shown in standard output, F is plots should be saved as jpg files. Default: T.
-#' @param output_prefix Prefix used for saving plots. If showplots==F then plots are saved here. Otherwise, standard output.
+#' @param showplots TRUE if plots should be shown in standard output, FALSE is plots should be saved as jpg files. Default: TRUE.
+#' @param output_prefix Prefix used for saving plots. If showplots==FALSE then plots are saved here. Otherwise, standard output.
 #' @return Dataframe containing test and training accuracy, sensitivity and specificity
 #' @keywords hyperparameter
 #' @keywords random forest
@@ -16,7 +16,7 @@
 #' data$classification = as.factor(data$classification)
 #' data = data[,2:ncol(data)]
 #' selectrfnumtrees(data,5,'RF boxplots')
-selectrfnumtrees<-function(data,maxnum=100,title='',showplots=T, output_prefix=''){
+selectrfnumtrees<-function(data,maxnum=100,title='',showplots=TRUE, output_prefix=''){
   ker<-data.frame(matrix(nrow = 120, ncol = 5))
   colnames(ker)<-list('num_trees','accuracy','sensitivity','specificity','type')
   if (nrow(data)<=100){
@@ -75,11 +75,11 @@ selectrfnumtrees<-function(data,maxnum=100,title='',showplots=T, output_prefix='
 }
 
 #' Tuning SVM kernel.
-#' Trains SVMs with a range of kernels (linear, polynomial degree 2, 3 and 4, radial and sigmoid) using cross validation so the optimal kernel can be chosen (using the resulting plots). If specified (by showplots=F) the plots are saved as jpegs.
+#' Trains SVMs with a range of kernels (linear, polynomial degree 2, 3 and 4, radial and sigmoid) using cross validation so the optimal kernel can be chosen (using the resulting plots). If specified (by showplots=FALSE) the plots are saved as jpegs.
 #' @param data Dataset: dataframe containing classification column and all other column features. Both the training and test datasets will be taken from this dataset.
 #' @param title Title to be used for the resulting boxplot
-#' @param showplots T if plots should be shown in standard output, F is plots should be saved as jpg files.
-#' @param output_prefix Prefix used for saving plots. If showplots==F then plots are saved here. Otherwise, standard output.
+#' @param showplots TRUE if plots should be shown in standard output, FALSE is plots should be saved as jpg files.
+#' @param output_prefix Prefix used for saving plots. If showplots==FALSE then plots are saved here. Otherwise, standard output.
 #' @return Dataframe containing test and training accuracy, sensitivity and specificity
 #' @keywords hyperparameter
 #' @keywords SVM
@@ -92,7 +92,7 @@ selectrfnumtrees<-function(data,maxnum=100,title='',showplots=T, output_prefix='
 #' data$classification = as.factor(data$classification)
 #' data = data[,2:ncol(data)]
 #' selectsvmkernel(data,'SVM boxplots')
-selectsvmkernel<-function(data,title,showplots=T,output_prefix=''){
+selectsvmkernel<-function(data,title='',showplots=TRUE,output_prefix=''){
   ker<-data.frame(matrix(nrow = 120, ncol = 5))
   colnames(ker)<-list('kernel','accuracy','sensitivity','specificity','type')
   if (nrow(data)<=100){
