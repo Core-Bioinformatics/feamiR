@@ -1,5 +1,8 @@
 # feamiR: Classification and feature selection for microRNA/mRNA interactions #
 
+[![rstudio mirror downloads](https://cranlogs.r-pkg.org/badges/feamiR)](https://github.com/r-hub/cranlogs.app)
+[![rstudio mirror downloads](https://cranlogs.r-pkg.org/badges/grand-total/feamiR)](https://github.com/r-hub/cranlogs.app)
+
 **microRNAs** play a key role in RNA interference, the sequence-driven targeting of mRNAs that regulates their translation to proteins, through translation inhibition or the degradation of the mRNA. Around ~30% of animal genes may be tuned by microRNAs. The prediction of miRNA/mRNA interactions is hindered by the short length of the interaction (seed) region (~7-8nt). We collate several large datasets overviewing validated interactions and propose *fea*mi**R**, a novel pipeline comprising optimised classification approaches (Decision Trees/Random Forests and an efficient feature selection based on embryonic Genetic Algorithms used in conjunction with Support Vector Machines) aimed at identifying discriminative nucleotide features, on the seed, compensatory and flanking regions, that increase the prediction accuracy for interactions.
 
 Common and specific combinations of features illustrate differences between reference organisms, validation techniques or tissue/cell localisation. *fea*mi**R** revealed new key positions that drive the miRNA/mRNA interactions, leading to novel questions on the mode-of-action of miRNAs.
