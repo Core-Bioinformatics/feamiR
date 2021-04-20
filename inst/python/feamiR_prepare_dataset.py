@@ -12,13 +12,14 @@ import statistics
 import logging
 import sys
 
+
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
 
 def complement(seq):
-    complement = {'A': 'U', 'C': 'G', 'G': 'C', 'U': 'A','N':'N'} 
+    complement = {'A': 'U', 'C': 'G', 'G': 'C', 'U': 'A','N':'N','T':'A'} 
     bases = list(seq) 
     bases = [complement[base] for base in bases] 
     return ''.join(bases)
@@ -202,7 +203,7 @@ def subsample_neg(positivity,negativity,threshold,j):
     if representative==False:
         return (False,'')
     else:
-        return (True,sampledneg)
+        return (True,dupsampledneg)
 
 def subsample(positive,negative,output_prefix,num_runs):
     positivity=positive[['miRNA_id','gene_id','seed_sequence']].drop_duplicates()
@@ -229,11 +230,9 @@ def subsample(positive,negative,output_prefix,num_runs):
                     if i!=mir_single.columns[-1]:
                         dummies_neg['seed_pair'+str(i+1)]=mir_single[i]+mir_single[i+1]
                 dummies_neg['classification']=0
-                collist = [x for x in dummies_pos.columns if (x!='miRNA_id' and x!='gene_id' and x!='classification')]
-                dummies_dummies_pos = pd.get_dummies(dummies_pos,columns=collist)
-                collist = [x for x in dummies_neg.columns if (x!='miRNA_id' and x!='gene_id' and x!='classification')]
-                dummies_dummies_neg = pd.get_dummies(dummies_neg,columns=collist)
-                combined_dummies = dummies_dummies_neg.append(dummies_dummies_pos,ignore_index=True)
+                combined_nondummies = dummies_neg.append(dummies_pos,ignore_index=True)
+                collist = [x for x in combined_nondummies.columns if (x!='miRNA_id' and x!='gene_id' and x!='classification')]
+                combined_dummies = pd.get_dummies(combined_nondummies,columns=collist)
                 combined_dummies.to_csv(output_prefix+str(k)+'.csv')
                 j=j+1
                 representative=True
@@ -409,7 +408,7 @@ def main():
                 logging.info('Failed to extract three prime UTRs. Please check chromosomes are labelled by 1,2,3 etc and that annotations file contains three prime UTRs.')
                 return(1)
             chrlist = currentchr = currentlength = freqdf = None
-            i = j = k = l = p=None
+            i = j = k = l = p = None
             list_of_seqs = mRNA_fasta = mRNA_gtf = None
             mergified = newaddition = newseq = ongoingdf = None
             ongoingseries = parser = primefile = None
@@ -428,7 +427,7 @@ def main():
             idlist = []
             seqlist = []
             for i in range(len(fullmRNAlist)):
-                idlist.append(fullmRNAlist[i].name)
+                idlist.append(fullmRNAlist[i].name.split()[0])
                 seqlist.append(str(fullmRNAlist[i].seq))
             fullmRNAdf = pd.DataFrame({'gene_id':idlist,'mRNA_sequence':seqlist})
         except:
@@ -437,8 +436,6 @@ def main():
         idlist = None
         seqlist = None
         fullmRNAlist = None
-
-
 
         logging.info('Creating miRNA seed file and saving to '+output_prefix+'seed.fasta')
         try:
@@ -472,7 +469,7 @@ def main():
             idlist = []
             seqlist = []
             for i in range(len(fullseedlist)):
-                idlist.append(fullseedlist[i].name)
+                idlist.append(fullseedlist[i].name.split()[0])
                 seqlist.append(str(fullseedlist[i].seq))
             fullseeddf = pd.DataFrame({'miRNA_id':idlist,'seed_sequence':seqlist})
             fullseedlist = idlist = seqlist = seed_file_open = None
@@ -481,7 +478,7 @@ def main():
             idlist = []
             seqlist = []
             for i in range(len(fullmiRNAlist)):
-                idlist.append(fullmiRNAlist[i].name)
+                idlist.append(fullmiRNAlist[i].name.split()[0])
                 seqlist.append(str(fullmiRNAlist[i].seq))
             fullmiRNAdf = pd.DataFrame({'miRNA_id':idlist,'full_miRNA_sequence':seqlist})
             fullmiRNAlist = idlist = seqlist = miRNA_file_open = None
@@ -490,9 +487,11 @@ def main():
             os.system(args.patmanpath+' -e 2 -g 0 -D '+mRNAfile_name+' -P '+seedfile_name+' -o '+output_prefix+'patman_seed.txt')
             totalseed = pd.read_csv(output_prefix+'patman_seed.txt',sep='\t',header=None)
             totalseed.columns = ['gene_id','miRNA_id','start','stop','strand','num_mismatches']
+            totalseed.gene_id = list(map(lambda x: x.split()[0], totalseed.gene_id))
             totalseed = totalseed[totalseed['strand']=='-']
             totalseed.miRNA_id = totalseed.miRNA_id.str.rstrip()
             totalseed.gene_id = totalseed.gene_id.str.rstrip()
+            fullmRNAdf.gene_id = fullmRNAdf.gene_id.str.rstrip()
             logging.info('Preparing to process PaTMaN output.')
             totalseed = totalseed.merge(fullseeddf,on=['miRNA_id'])
             totalseed = totalseed.merge(fullmiRNAdf,on=['miRNA_id'])
@@ -571,8 +570,10 @@ def main():
             negativeset_seed = negativeset_seed.drop(columns=['Support Type'])
         except:
             pass
-        positiveset_seed = positiveset_seed[positiveset_seed['negative_flanking']!='N']
-        negativeset_seed = negativeset_seed[negativeset_seed['negative_flanking']!='N']
+        positiveset_seed = positiveset_seed[positiveset_seed['downstream_flanking']!='N']
+        negativeset_seed = negativeset_seed[negativeset_seed['downstream_flanking']!='N']
+        positiveset_seed = positiveset_seed[positiveset_seed['upstream_flanking']!='N']
+        negativeset_seed = negativeset_seed[negativeset_seed['upstream_flanking']!='N']
         positiveset_seed.to_csv(output_prefix+'seed_positive.csv')
         negativeset_seed.to_csv(output_prefix+'seed_negative.csv')
         logging.info('PaTMaN output processed and split into positive and negative datasets, save at '+output_prefix+'seed_positive.csv and '+output_prefix+'seed_negative.csv')
@@ -664,55 +665,13 @@ def main():
     negativeset_file = output_prefix+'seed_negative.csv'
 
     #dataset prepared
-
-    #statistical results
-    os.system('mkdir '+output_prefix+'statistical_analysis')
-    #seed
-    try:
-        seed_dfforheat = fisher_1nt(positiveset_seed,negativeset_seed,8,numberateachposition)
-        seed_dfforheat_2nt = fisher_2nt(positiveset_seed,negativeset_seed,7,'seed_sequence')
-        seed_dfforheat.to_csv(output_prefix+'statistical_analysis/seed_1nt_statsummary.csv')
-        seed_dfforheat_2nt.to_csv(output_prefix+'statistical_analysis/seed_2nt_statsummary.csv')
-        heat = sns.heatmap(seed_dfforheat,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
-        heat.savefig(output_prefix+'statistical_analysis/seed_1nt_heatmap.jpg', bbox_inches = "tight")
-        heat_2nt = sns.heatmap(seed_dfforheat_2nt,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
-        heat_2nt.savefig(output_prefix+'statistical_analysis/seed_2nt_heatmap.jpg', bbox_inches = "tight")
-
-        if args.nonseed_miRNA and (args.nonseed_miRNA == 1 or args.nonseed_miRNA == '1'):
-            fullmiRNA_dfforheat = fisher_1nt(positiveset_seed,negativeset_seed,22,numberateachposition_fullmiRNA)
-            fullmiRNA_dfforheat_2nt = fisher_2nt(positiveset_seed,negativeset_seed,21,'full_miRNA_sequence')
-            fullmiRNA_dfforheat.to_csv(output_prefix+'statistical_analysis/fullmiRNA_1nt_statsummary.csv')
-            fullmiRNA_dfforheat_2nt.to_csv(output_prefix+'statistical_analysis/fullmiRNA_2nt_statsummary.csv')
-            heat = sns.heatmap(fullmiRNA_dfforheat,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
-            heat.savefig(output_prefix+'statistical_analysis/fullmiRNA_1nt_heatmap.jpg', bbox_inches = "tight")
-            heat_2nt = sns.heatmap(fullmiRNA_dfforheat_2nt,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
-            heat_2nt.savefig(output_prefix+'statistical_analysis/fullmiRNA_2nt_heatmap.jpg', bbox_inches = "tight")
-
-        if args.flankingmRNA and (args.flankingmRNA == 1 or args.flankingmRNA == '1'):
-            upstreamflanking_dfforheat = fisher_1nt(positiveset_seed,negativeset_seed,20,numberateachposition_upstream_flanking)
-            upstreamflanking_dfforheat_2nt = fisher_2nt(positiveset_seed,negativeset_seed,19,'upstream_flanking')
-            upstreamflanking_dfforheat.to_csv(output_prefix+'statistical_analysis/upstreamflanking_1nt_statsummary.csv')
-            upstreamflanking_dfforheat_2nt.to_csv(output_prefix+'statistical_analysis/upstreamflanking_2nt_statsummary.csv')
-            heat = sns.heatmap(upstreamflanking_dfforheat,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
-            heat.savefig(output_prefix+'statistical_analysis/upstreamflanking_1nt_heatmap.jpg', bbox_inches = "tight")
-            heat_2nt = sns.heatmap(upstreamflanking_dfforheat_2nt,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
-            heat_2nt.savefig(output_prefix+'statistical_analysis/upstreamflanking_2nt_heatmap.jpg', bbox_inches = "tight")
-
-            downstreamflanking_dfforheat = fisher_1nt(positiveset_seed,negativeset_seed,20,numberateachposition_downstream_flanking)
-            downstreamflanking_dfforheat_2nt = fisher_2nt(positiveset_seed,negativeset_seed,19,'downstream_flanking')
-            downstreamflanking_dfforheat.to_csv(output_prefix+'statistical_analysis/downstreamflanking_1nt_statsummary.csv')
-            downstreamflanking_dfforheat_2nt.to_csv(output_prefix+'statistical_analysis/downstreamflanking_2nt_statsummary.csv')
-            heat = sns.heatmap(downstreamflanking_dfforheat,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
-            heat.savefig(output_prefix+'statistical_analysis/downstreamflanking_1nt_heatmap.jpg', bbox_inches = "tight")
-            heat_2nt = sns.heatmap(downstreamflanking_dfforheat_2nt,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
-            heat_2nt.savefig(output_prefix+'statistical_analysis/downstreamflanking_2nt_heatmap.jpg', bbox_inches = "tight")
-    except:
-        logging.info('Oops sorry something went wrong with the statistical analysis. Please check the inputs or try again!')
-        return(1)
     os.system('mkdir '+output_prefix+'subsamples')
     #subsampling for classifiers
-
+    logging.info(len(negativeset_seed))
     logging.info('Creating '+str(args.num_runs)+' representative subsamples')
+    if len(positiveset_seed)==0:
+        logging.info('No validated targets found, subsamples cannot be created.')
+        return(1)
     try: 
         subsample(positiveset_seed,negativeset_seed,output_prefix+'subsamples/full_subsample',int(args.num_runs))
     except:
@@ -773,6 +732,51 @@ def main():
                         heat_2nt.savefig(output_prefix+'statistical_analysis/’+exp+’/downstreamflanking_2nt_heatmap.jpg', bbox_inches = "tight")
                 except:
                     logging.info('We had a problem with processing experiment type '+exp+' . Please have a look at that experiment type.')
+
+    #statistical results
+    os.system('mkdir '+output_prefix+'statistical_analysis')
+    #seed
+    try:
+        seed_dfforheat = fisher_1nt(positiveset_seed,negativeset_seed,8,numberateachposition)
+        seed_dfforheat_2nt = fisher_2nt(positiveset_seed,negativeset_seed,7,'seed_sequence')
+        seed_dfforheat.to_csv(output_prefix+'statistical_analysis/seed_1nt_statsummary.csv')
+        seed_dfforheat_2nt.to_csv(output_prefix+'statistical_analysis/seed_2nt_statsummary.csv')
+        heat = sns.heatmap(seed_dfforheat,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
+        heat.savefig(output_prefix+'statistical_analysis/seed_1nt_heatmap.jpg', bbox_inches = "tight")
+        heat_2nt = sns.heatmap(seed_dfforheat_2nt,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
+        heat_2nt.savefig(output_prefix+'statistical_analysis/seed_2nt_heatmap.jpg', bbox_inches = "tight")
+
+        if args.nonseed_miRNA and (args.nonseed_miRNA == 1 or args.nonseed_miRNA == '1'):
+            fullmiRNA_dfforheat = fisher_1nt(positiveset_seed,negativeset_seed,22,numberateachposition_fullmiRNA)
+            fullmiRNA_dfforheat_2nt = fisher_2nt(positiveset_seed,negativeset_seed,21,'full_miRNA_sequence')
+            fullmiRNA_dfforheat.to_csv(output_prefix+'statistical_analysis/fullmiRNA_1nt_statsummary.csv')
+            fullmiRNA_dfforheat_2nt.to_csv(output_prefix+'statistical_analysis/fullmiRNA_2nt_statsummary.csv')
+            heat = sns.heatmap(fullmiRNA_dfforheat,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
+            heat.savefig(output_prefix+'statistical_analysis/fullmiRNA_1nt_heatmap.jpg', bbox_inches = "tight")
+            heat_2nt = sns.heatmap(fullmiRNA_dfforheat_2nt,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
+            heat_2nt.savefig(output_prefix+'statistical_analysis/fullmiRNA_2nt_heatmap.jpg', bbox_inches = "tight")
+
+        if args.flankingmRNA and (args.flankingmRNA == 1 or args.flankingmRNA == '1'):
+            upstreamflanking_dfforheat = fisher_1nt(positiveset_seed,negativeset_seed,20,numberateachposition_upstream_flanking)
+            upstreamflanking_dfforheat_2nt = fisher_2nt(positiveset_seed,negativeset_seed,19,'upstream_flanking')
+            upstreamflanking_dfforheat.to_csv(output_prefix+'statistical_analysis/upstreamflanking_1nt_statsummary.csv')
+            upstreamflanking_dfforheat_2nt.to_csv(output_prefix+'statistical_analysis/upstreamflanking_2nt_statsummary.csv')
+            heat = sns.heatmap(upstreamflanking_dfforheat,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
+            heat.savefig(output_prefix+'statistical_analysis/upstreamflanking_1nt_heatmap.jpg', bbox_inches = "tight")
+            heat_2nt = sns.heatmap(upstreamflanking_dfforheat_2nt,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
+            heat_2nt.savefig(output_prefix+'statistical_analysis/upstreamflanking_2nt_heatmap.jpg', bbox_inches = "tight")
+
+            downstreamflanking_dfforheat = fisher_1nt(positiveset_seed,negativeset_seed,20,numberateachposition_downstream_flanking)
+            downstreamflanking_dfforheat_2nt = fisher_2nt(positiveset_seed,negativeset_seed,19,'downstream_flanking')
+            downstreamflanking_dfforheat.to_csv(output_prefix+'statistical_analysis/downstreamflanking_1nt_statsummary.csv')
+            downstreamflanking_dfforheat_2nt.to_csv(output_prefix+'statistical_analysis/downstreamflanking_2nt_statsummary.csv')
+            heat = sns.heatmap(downstreamflanking_dfforheat,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
+            heat.savefig(output_prefix+'statistical_analysis/downstreamflanking_1nt_heatmap.jpg', bbox_inches = "tight")
+            heat_2nt = sns.heatmap(downstreamflanking_dfforheat_2nt,vmin=0,vmax=0.2,cmap='RdBu',center=0.1).get_figure()
+            heat_2nt.savefig(output_prefix+'statistical_analysis/downstreamflanking_2nt_heatmap.jpg', bbox_inches = "tight")
+    except:
+        logging.info('Oops sorry something went wrong with the statistical analysis. Please check the inputs or try again!')
+        return(1)
 
 if __name__ == "__main__":
     main()

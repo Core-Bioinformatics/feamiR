@@ -1,40 +1,61 @@
 #' @importFrom magrittr %>%
 NULL
 
-specfunc<-function(results){
-  temp = results %>% dplyr::filter(results$y_real == 0)
-  spectib <- as.data.frame(temp %>% dplyr::count(temp$Correct))
-  if (nrow(spectib)==1) {
-    if (spectib[1,'temp$Correct']=='yes'){
-      specificity <- 1
+classifier.performance <- function(classifier,data,label,includeplot=TRUE){
+  predicted.label <- stats::predict(classifier,data, type = 'class')
+  true.label = data[, 1]
+  pred.table <- table(true.label, predicted.label)
+  if (nrow(pred.table)==1){
+    if (rownames(pred.table) %in% c(0,'0')){
+      print(1)
+      pred.table=data.frame('pred_0'=c(pred.table[1,1],0),'pred_1'=c(pred.table[1,2],0))
+      rownames(pred.table)=c('true_0','true_1')
     }
-    else {
-      specificity <- 0
-    }}
-  if (nrow(spectib)==2) {
-    specificity <- spectib[1,2]/(spectib[1,2]+spectib[2,2])
-  }
-  else{specificity=0}
-  specificity
-}
-sensfunc<-function(results){
-  temp = results %>% dplyr::filter(results$y_real == 1)
-  senstib <- as.data.frame(temp %>% dplyr::count(temp$Correct))
-  if (nrow(senstib)==1) {
-    if (senstib[1,'temp$Correct']=='yes'){
-      sensitivity <- 1
+    if (rownames(pred.table) %in% c(1,'1')){
+      print(2)
+      pred.table=data.frame('pred_0'=c(0,pred.table[1,1]),'pred_1'=c(0,pred.table[1,2]))
+      rownames(pred.table)=c('true_0','true_1')
     }
-    else {
-      sensitivity <- 0
-    }}
-  if (nrow(senstib)==2) {
-    sensitivity<-senstib[1,2]/(senstib[2,2]+senstib[1,2])
   }
-  else {sensitivity=0}
-  sensitivity
+  if (ncol(pred.table)==1){
+    if (colnames(pred.table) %in% c(0,'0')){
+      pred.table=data.frame('pred_0'=c(pred.table[1,1],pred.table[2,1]),'pred_1'=c(0,0))
+      rownames(pred.table)=c('true_0','true_1')
+    }
+    if (colnames(pred.table) %in% c(1,'1')){
+      print(2)
+      pred.table=data.frame('pred_0'=c(0,0),'pred_1'=c(pred.table[1,1],pred.table[2,1]))
+      rownames(pred.table)=c('true_0','true_1')
+    }
+  }
+  colnames(pred.table)=c('pred_0','pred_1')
+  rownames(pred.table)=c('true_0','true_1')
+  accuracy <- sum(diag(pred.table)) / sum(pred.table)
+  sensitivity = pred.table['true_1','pred_1']/(pred.table['true_1','pred_0']+pred.table['true_1','pred_1'])
+  specificity = pred.table['true_0','pred_0']/(pred.table['true_0','pred_0']+pred.table['true_0','pred_1'])
+  return_list = list('accuracy'=accuracy,'sensitivity'=sensitivity,'specificity'=specificity)
+  
+  
+  results = tibble::tibble(y_real  = true.label %>% factor(levels=c(0,1)),
+                           y_pred  = predicted.label %>% factor(levels=c(0,1)),
+                           Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
+  if (includeplot==TRUE){
+    title = paste0(label)
+    xlab  = 'True label'
+    ylab  = 'Predicted label'
+    graphics::plot(ggplot2::ggplot(results,ggplot2::aes(x = results$y_pred, y = results$y_real, colour = results$Correct)) +
+                     ggplot2::geom_point() +
+                     ggplot2::ggtitle(label = title, subtitle = paste0("Accuracy = ", 100*round(accuracy,3),"%")) +
+                     ggplot2::xlab(xlab) +
+                     ggplot2::ylab(ylab) +
+                     ggplot2::scale_color_manual(labels = c('Yes', 'No'),
+                                                 values = c('cornflowerblue','tomato')) +
+                     ggplot2::geom_jitter() +
+                     ggplot2::theme_bw()+
+                     ggplot2::labs(colour = 'Correct'))
+  }
+  return(return_list)
 }
-
-
 
 #' Decision tree
 #' Trains a decision on the given training dataset and uses it to predict classification for test dataset. The resulting accuracy, sensitivity and specificity are returned, as well as a tree summary.
@@ -63,77 +84,11 @@ sensfunc<-function(results){
 decisiontree<-function(data_train,data_test,includeplot=FALSE,showtree=FALSE){
   fit <- rpart::rpart(stats::as.formula("classification~."), data = data_train, method = 'class',minsplit=6)
   if (showtree==TRUE){print(rpart.plot::prp(fit))}
-
-  testdtree_y_pred <- stats::predict(fit,data_test, type = 'class')
-  testdtree <- table(data_test[, 1], testdtree_y_pred)
-  testdtree_accuracy_Test <- sum(diag(testdtree)) / sum(testdtree)
-
-  traindtree_y_pred = stats::predict(fit,data_train, type = 'class')
-  traindtree <- table(data_train[, 1], traindtree_y_pred)
-  traindtree_accuracy_Test <- sum(diag(traindtree)) / sum(traindtree)
-
-  if (nlevels(testdtree_y_pred %>% factor(levels=c(0,1)))==1){
-    if (levels(testdtree_y_pred %>% factor(levels=c(0,1)))=='1'){
-      testsensitivity<-nrow(data_test %>% dplyr::filter(data_test$classification==1))/nrow(data_test)
-      testspecificity<-0
-    }
-    if (levels(testdtree_y_pred %>% factor(levels=c(0,1)))=='0'){
-      testsensitivity<-0
-      testspecificity<-nrow(data_test %>% dplyr::filter(data_test$classification==0))/nrow(data_test)
-    }
-  }
-  if (nlevels(testdtree_y_pred %>% factor(levels=c(0,1)))!=1){
-    y_real  = data_test$classification %>% factor(levels=c(0,1))
-    y_pred  = testdtree_y_pred %>% factor(levels=c(0,1))
-    results = tibble::tibble(y_real  = data_test$classification %>% factor(levels=c(0,1)),
-                     y_pred  = testdtree_y_pred %>% factor(levels=c(0,1)),
-                     Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
-    testspecificity<-specfunc(results)
-    testsensitivity<-sensfunc(results)
-  }
-  if (nlevels(traindtree_y_pred %>% factor(levels=c(0,1)))==1){
-    if (levels(traindtree_y_pred %>% factor(levels=c(0,1)))=='1'){
-      trainsensitivity<-nrow(data_train %>% dplyr::filter(data_train$classification==1))/nrow(data_train)
-      trainspecificity<-0
-    }
-    if (levels(traindtree_y_pred %>% factor(levels=c(0,1)))=='0'){
-      trainsensitivity<-0
-      trainspecificity<-nrow(data_train %>% dplyr::filter(data_train$classification==0))/nrow(data_train)
-    }
-  }
-  if (nlevels(traindtree_y_pred %>% factor(levels=c(0,1)))!=1){
-    y_real  = data_train$classification %>% factor(levels=c(0,1))
-    y_pred  = traindtree_y_pred %>% factor(levels=c(0,1))
-    results = tibble::tibble(y_real  = data_train$classification %>% factor(levels=c(0,1)),
-                     y_pred  = traindtree_y_pred %>% factor(levels=c(0,1)),
-                     Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
-    trainspecificity<-specfunc(results)
-    trainsensitivity<-sensfunc(results)
-    if (includeplot==TRUE){
-      y_real  = data_test$classification %>% factor(levels=c(0,1))
-      y_pred  = testdtree_y_pred %>% factor(levels=c(0,1))
-      results = tibble::tibble(y_real  = data_test$classification %>% factor(levels=c(0,1)),
-                       y_pred  = testdtree_y_pred %>% factor(levels=c(0,1)),
-                       Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
-
-      title = 'Performance on unseen data - decision tree'
-      xlab  = 'Measured (Real class)'
-      ylab  = 'Predicted (Class assigned by decisiontree)'
-      graphics::plot(ggplot2::ggplot(results,ggplot2::aes(x = testdtree_y_pred, y = data_test$classification, colour = results$Correct)) +
-             ggplot2::geom_point() +
-             ggplot2::ggtitle(label = title, subtitle = paste0("Accuracy = ", 100*round(testdtree_accuracy_Test,3),"%")) +
-             xlab(xlab) +
-             ylab(ylab) +
-             ggplot2::scale_color_manual(labels = c('Yes', 'No'),
-                                values = c('cornflowerblue','tomato')) +
-             ggplot2::geom_jitter() +
-             ggplot2::theme_bw())
-    }
-    return_list <- list("training"=traindtree_accuracy_Test,"test" = testdtree_accuracy_Test,"testsensitivity"=testsensitivity,"testspecificity"=testspecificity,"trainsensitivity"=trainsensitivity,"trainspecificity"=trainspecificity,"fit"=fit$frame)
-    return(return_list)
-
-  }}
-
+  training = suppressWarnings(classifier.performance(fit,data_train,label = 'Decision tree - training performance',includeplot = includeplot))
+  test = suppressWarnings(classifier.performance(fit,data_test,label = 'Decision tree - test performance',includeplot = includeplot))
+  return_list <- list("training"=training$accuracy,"test" = test$accuracy,"testsensitivity"=test$sensitivity,"testspecificity"=test$specificity,"trainsensitivity"=training$sensitivity,"trainspecificity"=training$specificity,"fit"=fit$frame)
+  return(return_list)
+}
 
 #' Random Forest.
 #' Trains a random forest on the training dataset and uses it to predict the classification of the test dataset. The resulting accuracy, sensitivity and specificity are returned, as well as a summary of the importance of features in the dataset.
@@ -157,80 +112,14 @@ decisiontree<-function(data_train,data_test,includeplot=FALSE,showtree=FALSE){
 #'       B=c(1,1,1,0,0,1,1,1),
 #'       C=c(0,0,1,1,0,0,1,1))
 #' randomforest(data_train,data_test,numoftrees=5)
+
 randomforest<-function(data_train,data_test,numoftrees=10,includeplot=FALSE){
-
   training.rf <- randomForest::randomForest(stats::as.formula("classification~."),data=data_train,ntree=numoftrees,proximity=TRUE,importance=TRUE,replace=TRUE)
-  testrf_y_pred <- stats::predict(training.rf,newdata=data_test[-1])
-  testrf <- table(data_test[, 1], testrf_y_pred)
-  testrf_accuracy_Test <- sum(diag(testrf)) / sum(testrf)
-
-  trainrf_y_pred = stats::predict(training.rf,newdata=data_train[-1])
-  trainrf <- table(data_train[, 1], trainrf_y_pred)
-  trainrf_accuracy_Test <- sum(diag(trainrf)) / sum(trainrf)
-
-  if (nlevels(testrf_y_pred %>% factor(levels=c(0,1)))==1){
-    if (levels(testrf_y_pred %>% factor(levels=c(0,1)))=='1'){
-      testsensitivity<-nrow(data_test %>% dplyr::filter(data_test$classification==1))/nrow(data_test)
-      testspecificity<-0
-    }
-    if (levels(testrf_y_pred %>% factor(levels=c(0,1)))=='0'){
-      testsensitivity<-0
-      testspecificity<-nrow(data_test %>% dplyr::filter(data_test$classification==0))/nrow(data_test)
-    }
-  }
-  if (nlevels(testrf_y_pred %>% factor(levels=c(0,1)))!=1){
-    y_real  = data_test$classification %>% factor(levels=c(0,1))
-    y_pred  = testrf_y_pred %>% factor(levels=c(0,1))
-    results = tibble::tibble(y_real  = data_test$classification %>% factor(levels=c(0,1)),
-                     y_pred  = testrf_y_pred %>% factor(levels=c(0,1)),
-                     Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
-    testspecificity<-specfunc(results)
-    testsensitivity<-sensfunc(results)
-  }
-  if (nlevels(trainrf_y_pred %>% factor(levels=c(0,1)))==1){
-    if (levels(trainrf_y_pred %>% factor(levels=c(0,1)))=='1'){
-      trainsensitivity<-nrow(data_train %>% dplyr::filter(data_train$classification==1))/nrow(data_train)
-      trainspecificity<-0
-    }
-    if (levels(trainrf_y_pred %>% factor(levels=c(0,1)))=='0'){
-      trainsensitivity<-0
-      trainspecificity<-nrow(data_train %>% dplyr::filter(data_train$classification==0))/nrow(data_train)
-    }
-  }
-  if (nlevels(trainrf_y_pred %>% factor(levels=c(0,1)))!=1){
-    y_real  = data_train$classification %>% factor(levels=c(0,1))
-    y_pred  = trainrf_y_pred %>% factor(levels=c(0,1))
-    results = tibble::tibble(y_real  = data_train$classification %>% factor(levels=c(0,1)),
-                     y_pred  = trainrf_y_pred %>% factor(levels=c(0,1)),
-                     Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
-    trainspecificity<-specfunc(results)
-    trainsensitivity<-sensfunc(results)
-  }
-  if (includeplot==TRUE){
-    y_real  = data_test$classification %>% factor(levels=c(0,1))
-    y_pred  = testrf_y_pred %>% factor(levels=c(0,1))
-    results = tibble::tibble(y_real  = data_test$classification %>% factor(levels=c(0,1)),
-                     y_pred  = testrf_y_pred %>% factor(levels=c(0,1)),
-                     Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
-
-    title = 'Performance on unseen data - random forest'
-    xlab  = 'Measured (Real class)'
-    ylab  = 'Predicted (Class assigned by random forest)'
-    graphics::plot(ggplot2::ggplot(results,ggplot2::aes(x = testrf_y_pred, y = data_test$classification, colour = results$Correct)) +
-           ggplot2::geom_point() +
-           ggplot2::ggtitle(label = title, subtitle = paste0("Accuracy = ", 100*round(testrf_accuracy_Test,3),"%")) +
-           xlab(xlab) +
-           ylab(ylab) +
-           ggplot2::scale_color_manual(labels = c('Yes','No'),
-                              values = c('cornflowerblue','tomato')) +
-           ggplot2::geom_jitter() +
-           ggplot2::theme_bw())
-  }
-  return_list <- list("training"=trainrf_accuracy_Test,"test" = testrf_accuracy_Test,"testsensitivity"=testsensitivity,"testspecificity"=testspecificity,"trainsensitivity"=trainsensitivity,"trainspecificity"=trainspecificity,"importance"=randomForest::importance(training.rf))
+  training = suppressWarnings(classifier.performance(training.rf,data_train,label = 'Random forest - training performance',includeplot = includeplot))
+  test = suppressWarnings(classifier.performance(training.rf,data_test,label = 'Random forest - test performance',includeplot = includeplot))
+  return_list <- list("training"=training$accuracy,"test" = test$accuracy,"testsensitivity"=test$sensitivity,"testspecificity"=test$specificity,"trainsensitivity"=training$sensitivity,"trainspecificity"=training$specificity,"importance"=randomForest::importance(training.rf))
   return(return_list)
 }
-
-
 
 #' SVM
 #  Trains an SVM with the specified kernel (or default linear) on the supplied training dataset. The resulting accuracy, sensitivity and specificity are returned.
@@ -258,6 +147,7 @@ randomforest<-function(data_train,data_test,numoftrees=10,includeplot=FALSE){
 #' svm(data_train,data_test,kernel='radial',degree=3)
 #' svm(data_train,data_test,kernel='sigmoid')
 #' svm(data_train,data_test,kernel='poly',degree=4,poly=1)
+
 svm<-function(data_train,data_test,kernel='linear',degree=3,poly=0,includeplot=FALSE){
   if (poly==1){
     classifier = e1071::svm(formula = classification ~ .,
@@ -277,79 +167,12 @@ svm<-function(data_train,data_test,kernel='linear',degree=3,poly=0,includeplot=F
                             type = 'C-classification',
                             kernel = kernel)
   }
-  svmy_pred_train = predict(classifier, newdata = subset(data_train,select=-c(classification)))
-  svmcm_train = table(data_train[, 1], svmy_pred_train)
-  svmaccuracy_Train <- sum(diag(svmcm_train)) / sum(svmcm_train)
-  if (nlevels(svmy_pred_train %>% factor(levels=c(0,1)))==1){
-    if (levels(svmy_pred_train %>% factor(levels=c(0,1)))=='1'){
-      sensitivity_train<-nrow(data_train %>% dplyr::filter(data_train$classification==1))/nrow(data_train)
-      specificity_train<-0
-    }
-    if (levels(svmy_pred_train %>% factor(levels=c(0,1)))=='0'){
-      sensitivity_train<-0
-      specificity_train<-nrow(data_train %>% dplyr::filter(data_train$classification==0))/nrow(data_train)
-    }
-  }
-  if (nlevels(svmy_pred_train %>% factor(levels=c(0,1)))!=1){
-    y_real  = data_train$classification %>% factor(levels=c(0,1))
-    y_pred  = svmy_pred_train %>% factor(levels=c(0,1))
-    results_train = tibble::tibble(y_real  = data_train$classification %>% factor(levels=c(0,1)),
-                           y_pred  = svmy_pred_train %>% factor(levels=c(0,1)),
-                           Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
-    sensitivity_train<-sensfunc(results_train)
-    specificity_train<-specfunc(results_train)
-  }
-
-
-  svmy_pred = stats::predict(classifier, newdata = subset(data_test,select=(colnames(data_test)[colnames(data_test)!='classification'])))
-  svmcm = table(data_test[, 1], svmy_pred)
-  svmaccuracy_Test <- sum(diag(svmcm)) / sum(svmcm)
-  if (nlevels(svmy_pred %>% factor(levels=c(0,1)))==1){
-    if (levels(svmy_pred %>% factor(levels=c(0,1)))=='1'){
-      sensitivity<-nrow(data_test %>% dplyr::filter(data_test$classification==1))/nrow(data_test)
-      specificity<-0
-    }
-    if (levels(svmy_pred %>% factor(levels=c(0,1)))=='0'){
-      sensitivity<-0
-      specificity<-nrow(data_test %>% dplyr::filter(data_test$classification==0))/nrow(data_test)
-    }
-  }
-  if (nlevels(svmy_pred %>% factor(levels=c(0,1)))!=1){
-    y_real  = data_test$classification %>% factor(levels=c(0,1))
-    y_pred  = svmy_pred %>% factor(levels=c(0,1))
-    results = tibble::tibble(y_real  = data_test$classification %>% factor(levels=c(0,1)),
-                     y_pred  = svmy_pred %>% factor(levels=c(0,1)),
-                     Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
-    sensitivity<-sensfunc(results)
-    specificity<-specfunc(results)
-  }
-
-  if (includeplot==TRUE){
-    y_real  = data_test$classification %>% factor(levels=c(0,1))
-    y_pred  = svmy_pred %>% factor(levels=c(0,1))
-    results = tibble::tibble(y_real  = data_test$classification %>% factor(levels=c(0,1)),
-                     y_pred  = svmy_pred %>% factor(levels=c(0,1)),
-                     Correct = ifelse(y_real == y_pred,"yes","no") %>% factor(levels=c('yes','no')))
-
-    title = 'Performance on unseen data - SVM'
-    xlab  = 'Measured (Real class)'
-    ylab  = 'Predicted (Class assigned by SVM)'
-    graphics::plot(ggplot2::ggplot(results,ggplot2::aes(x = svmy_pred, y = data_test$classification, colour = results$Correct)) +
-           ggplot2::geom_point() +
-           ggplot2::ggtitle(label = title, subtitle = paste0("Accuracy = ", 100*round(svmaccuracy_Test,3),"%")) +
-           xlab(xlab) +
-           ylab(ylab) +
-           ggplot2::scale_color_manual(labels = c('Yes', 'No'),
-                              values = c('cornflowerblue','tomato')) +
-           ggplot2::geom_jitter() +
-           ggplot2::theme_bw())
-  }
-
-
-  return_list <- list("test" = svmaccuracy_Test,"testsensitivity"=sensitivity,"testspecificity"=specificity,"training" = svmaccuracy_Train, "trainsensitivity"=sensitivity_train,"trainspecificity"=specificity_train)
+  training = suppressWarnings(classifier.performance(classifier,data_train,label = 'SVM - training performance',includeplot = includeplot))
+  test = suppressWarnings(classifier.performance(classifier,data_test,label = 'SVM - test performance',includeplot = includeplot))
+  
+  return_list <- list("test" = test$accuracy,"testsensitivity"=test$sensitivity,"testspecificity"=test$specificity,"training" = training$accuracy, "trainsensitivity"=training$sensitivity,"trainspecificity"=training$specificity)
   return(return_list)
 }
-
 
 #' Linear SVM
 #' Implements a linear SVM using the general svm function (for ease of use in feature selection)
