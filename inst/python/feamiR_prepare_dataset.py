@@ -93,7 +93,7 @@ def numberateachposition2nt_i(dataset,i):
     l = []
     for j in ['A','G','C','U']:
         for k in ['A','G','C','U']:
-            l.append(len(dataset[np.logical_and(dataset['miRNA_seq'].str[i] == j,dataset['miRNA_seq'].str[i+1] == k)]))
+            l.append(len(dataset[np.logical_and(dataset['seed_sequence'].str[i] == j,dataset['seed_sequence'].str[i+1] == k)]))
     return l
 def numberateachposition2nt_i_fullmiRNA(dataset,i):
     l = []
