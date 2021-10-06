@@ -7,6 +7,8 @@
 
 Common and specific combinations of features illustrate differences between reference organisms, validation techniques or tissue/cell localisation. *fea*mi**R** revealed new key positions that drive the miRNA/mRNA interactions, leading to novel questions on the mode-of-action of miRNAs.
 
+*fea*mi**R** was presented at EMBL Symposium: Non-Coding Genome in October 2021, the poster is uploaded [here](https://github.com/Core-Bioinformatics/feamiR/blob/main/docs/figures/feamiR%20Poster.pdf).
+
 <img src="https://github.com/Core-Bioinformatics/feamiR/blob/main/docs/figures/workflow.png" width="400">
 
 *Overview of the *fea*mi**R** workflow.*
