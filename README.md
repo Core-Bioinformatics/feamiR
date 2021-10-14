@@ -7,13 +7,19 @@
 
 Common and specific combinations of features illustrate differences between reference organisms, validation techniques or tissue/cell localisation. *fea*mi**R** revealed new key positions that drive the miRNA/mRNA interactions, leading to novel questions on the mode-of-action of miRNAs.
 
-*fea*mi**R** was presented at EMBL Symposium: Non-Coding Genome in October 2021, the poster is uploaded [here](https://github.com/Core-Bioinformatics/feamiR/blob/main/docs/figures/feamiR%20Poster.pdf).
+*fea*mi**R** was presented at EMBL Symposium: Non-Coding Genome in October 2021, the poster is uploaded [here](https://github.com/Core-Bioinformatics/feamiR/blob/main/docs/figures/feamiR%20Poster.pdf) and is described in this video:
+
+https://user-images.githubusercontent.com/33287710/137338503-53e23622-1a4a-4c92-a540-0699bb8c86a9.mp4
+
+
+
+
+The *fea*mi**R** package provides two categories of functions: [a] Dataset pre-processing functions and [b] analysis functions.
 
 <img src="https://github.com/Core-Bioinformatics/feamiR/blob/main/docs/figures/workflow.png" width="400">
 
 *Overview of the *fea*mi**R** workflow.*
 
-The *fea*mi**R** package provides two categories of functions: [a] Dataset pre-processing functions and [b] analysis functions.
 
 ## Dataset preparation functions ##
 
